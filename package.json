@@ -1,0 +1,43 @@
+{
+  "name": "@github/paste-markdown",
+  "version": "0.0.1",
+  "description": "Paste spreadsheet cells as a Markdown table.",
+  "repository": "github/paste-markdown",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.esm.js",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "lint": "eslint src/ && flow check",
+    "prebuild": "npm run clean && npm run lint && mkdir dist",
+    "build": "rollup -c && cp src/index.js.flow dist/index.umd.js.flow && cp src/index.js.flow dist/index.esm.js.flow",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "clipboard",
+    "markdown"
+  ],
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.1",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-flow": "^7.0.0",
+    "babel-eslint": "^9.0.0",
+    "eslint": "^5.5.0",
+    "eslint-plugin-github": "^1.2.2",
+    "flow-bin": "^0.80.0",
+    "rollup": "^0.66.0",
+    "rollup-plugin-babel": "^4.0.3"
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:flowtype/recommended",
+      "plugin:github/es6",
+      "plugin:github/browser"
+    ],
+    "parser": "babel-eslint"
+  }
+}

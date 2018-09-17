@@ -1,0 +1,7 @@
+/* @flow strict */
+
+interface Subscription {
+  unsubscribe: () => void
+}
+
+declare export function subscribe(el: Element): Subscription;
