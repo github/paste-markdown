@@ -7,7 +7,7 @@
   "module": "dist/index.esm.js",
   "scripts": {
     "clean": "rm -rf dist",
-    "lint": "eslint src/ && flow check",
+    "lint": "eslint . && flow check",
     "prebuild": "npm run clean && npm run lint && mkdir dist",
     "build": "rollup -c && cp src/index.js.flow dist/index.umd.js.flow && cp src/index.js.flow dist/index.esm.js.flow",
     "test": "npm run build",
@@ -38,5 +38,8 @@
       "plugin:github/browser"
     ],
     "parser": "babel-eslint"
-  }
+  },
+  "eslintIgnore": [
+    "dist/"
+  ]
 }
