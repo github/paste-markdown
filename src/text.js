@@ -1,14 +1,15 @@
 /* @flow strict */
 
 export function insertText(textarea: HTMLInputElement | HTMLTextAreaElement, text: string): void {
-  const point = textarea.selectionEnd
-  const beginning = textarea.value.substring(0, point)
-  const remaining = textarea.value.substring(point)
-  const newline = textarea.value === '' || beginning.match(/\n$/) ? '' : '\n'
+  const beginning = textarea.value.substring(0, textarea.selectionStart)
+  const remaining = textarea.value.substring(textarea.selectionEnd)
 
-  textarea.value = beginning + newline + text + remaining
-  textarea.selectionStart = point + text.length
-  textarea.selectionEnd = point + text.length
+  const newline = beginning.length === 0 || beginning.match(/\n$/) ? '' : '\n'
+  const textBeforeCursor = beginning + newline + text
+
+  textarea.value = textBeforeCursor + remaining
+  textarea.selectionStart = textBeforeCursor.length
+  textarea.selectionEnd = textarea.selectionStart
 
   textarea.dispatchEvent(
     new CustomEvent('change', {

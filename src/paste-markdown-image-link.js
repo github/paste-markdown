@@ -21,15 +21,15 @@ function onDrop(event: DragEvent) {
   if (hasFile(transfer)) return
   if (!hasLink(transfer)) return
 
+  const links = extractLinks(transfer)
+  if (!links.some(isImageLink)) return
+
   event.stopPropagation()
   event.preventDefault()
 
   const field = event.currentTarget
   if (!(field instanceof HTMLTextAreaElement)) return
-
-  for (const link of links(transfer).map(linkify)) {
-    insertText(field, link)
-  }
+  insertText(field, links.map(linkify).join(''))
 }
 
 function onDragover(event: DragEvent) {
@@ -41,14 +41,15 @@ function onPaste(event: ClipboardEvent) {
   const transfer = event.clipboardData
   if (!transfer || !hasLink(transfer)) return
 
+  const links = extractLinks(transfer)
+  if (!links.some(isImageLink)) return
+
   event.stopPropagation()
   event.preventDefault()
 
   const field = event.currentTarget
   if (!(field instanceof HTMLTextAreaElement)) return
-  for (const link of links(transfer).map(linkify)) {
-    insertText(field, link)
-  }
+  insertText(field, links.map(linkify).join(''))
 }
 
 function linkify(link: string): string {
@@ -63,14 +64,12 @@ function hasLink(transfer: DataTransfer): boolean {
   return Array.from(transfer.types).indexOf('text/uri-list') >= 0
 }
 
-function links(transfer: DataTransfer): Array<string> {
+function extractLinks(transfer: DataTransfer): Array<string> {
   return (transfer.getData('text/uri-list') || '').split('\r\n')
 }
 
+const IMAGE_RE = /\.(gif|png|jpe?g)$/i
+
 function isImageLink(url: string): boolean {
-  const ext = url
-    .split('.')
-    .pop()
-    .toLowerCase()
-  return ['gif', 'png', 'jpg', 'jpeg'].indexOf(ext) > -1
+  return IMAGE_RE.test(url)
 }
