@@ -19,7 +19,7 @@ export default {
   ],
   plugins: [
     babel({
-      presets: ['@babel/env', '@babel/flow']
+      presets: ['github']
     })
   ]
 }
