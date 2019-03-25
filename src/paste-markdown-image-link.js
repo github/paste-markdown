@@ -21,23 +21,15 @@ function onDrop(event: DragEvent) {
   if (hasFile(transfer)) return
   if (!hasLink(transfer)) return
 
-  let linkified = false
-  const transformedLinks = links(transfer).map(link => {
-    if (isImageLink(link)) {
-      linkified = true
-      return `\n![](${link})\n`
-    } else {
-      return link
-    }
-  })
-  if (!linkified) return
+  const links = extractLinks(transfer)
+  if (!links.some(isImageLink)) return
 
   event.stopPropagation()
   event.preventDefault()
 
   const field = event.currentTarget
   if (!(field instanceof HTMLTextAreaElement)) return
-  insertText(field, transformedLinks.join(''))
+  insertText(field, links.map(linkify).join(''))
 }
 
 function onDragover(event: DragEvent) {
@@ -49,23 +41,19 @@ function onPaste(event: ClipboardEvent) {
   const transfer = event.clipboardData
   if (!transfer || !hasLink(transfer)) return
 
-  let linkified = false
-  const transformedLinks = links(transfer).map(link => {
-    if (isImageLink(link)) {
-      linkified = true
-      return `\n![](${link})\n`
-    } else {
-      return link
-    }
-  })
-  if (!linkified) return
+  const links = extractLinks(transfer)
+  if (!links.some(isImageLink)) return
 
   event.stopPropagation()
   event.preventDefault()
 
   const field = event.currentTarget
   if (!(field instanceof HTMLTextAreaElement)) return
-  insertText(field, transformedLinks.join(''))
+  insertText(field, links.map(linkify).join(''))
+}
+
+function linkify(link: string): string {
+  return isImageLink(link) ? `\n![](${link})\n` : link
 }
 
 function hasFile(transfer: DataTransfer): boolean {
@@ -76,7 +64,7 @@ function hasLink(transfer: DataTransfer): boolean {
   return Array.from(transfer.types).indexOf('text/uri-list') >= 0
 }
 
-function links(transfer: DataTransfer): Array<string> {
+function extractLinks(transfer: DataTransfer): Array<string> {
   return (transfer.getData('text/uri-list') || '').split('\r\n')
 }
 
