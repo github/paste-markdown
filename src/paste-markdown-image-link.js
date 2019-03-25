@@ -80,10 +80,8 @@ function links(transfer: DataTransfer): Array<string> {
   return (transfer.getData('text/uri-list') || '').split('\r\n')
 }
 
+const IMAGE_RE = /\.(gif|png|jpe?g)$/i
+
 function isImageLink(url: string): boolean {
-  const ext = url
-    .split('.')
-    .pop()
-    .toLowerCase()
-  return ['gif', 'png', 'jpg', 'jpeg'].indexOf(ext) > -1
+  return IMAGE_RE.test(url)
 }
