@@ -21,15 +21,23 @@ function onDrop(event: DragEvent) {
   if (hasFile(transfer)) return
   if (!hasLink(transfer)) return
 
+  let linkified = false
+  const transformedLinks = links(transfer).map(link => {
+    if (isImageLink(link)) {
+      linkified = true
+      return `\n![](${link})\n`
+    } else {
+      return link
+    }
+  })
+  if (!linkified) return
+
   event.stopPropagation()
   event.preventDefault()
 
   const field = event.currentTarget
   if (!(field instanceof HTMLTextAreaElement)) return
-
-  for (const link of links(transfer).map(linkify)) {
-    insertText(field, link)
-  }
+  insertText(field, transformedLinks.join(''))
 }
 
 function onDragover(event: DragEvent) {
@@ -41,18 +49,23 @@ function onPaste(event: ClipboardEvent) {
   const transfer = event.clipboardData
   if (!transfer || !hasLink(transfer)) return
 
+  let linkified = false
+  const transformedLinks = links(transfer).map(link => {
+    if (isImageLink(link)) {
+      linkified = true
+      return `\n![](${link})\n`
+    } else {
+      return link
+    }
+  })
+  if (!linkified) return
+
   event.stopPropagation()
   event.preventDefault()
 
   const field = event.currentTarget
   if (!(field instanceof HTMLTextAreaElement)) return
-  for (const link of links(transfer).map(linkify)) {
-    insertText(field, link)
-  }
-}
-
-function linkify(link: string): string {
-  return isImageLink(link) ? `\n![](${link})\n` : link
+  insertText(field, transformedLinks.join(''))
 }
 
 function hasFile(transfer: DataTransfer): boolean {
