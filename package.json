@@ -1,6 +1,6 @@
 {
   "name": "@github/paste-markdown",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Paste spreadsheet cells as a Markdown table.",
   "repository": "github/paste-markdown",
   "main": "dist/index.umd.js",
