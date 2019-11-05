@@ -25,14 +25,14 @@
     "index.d.ts"
   ],
   "devDependencies": {
-    "@babel/core": "^7.3.4",
-    "babel-eslint": "^10.0.1",
-    "babel-preset-github": "^3.2.0",
-    "eslint": "^5.14.1",
-    "eslint-plugin-github": "^1.10.0",
-    "flow-bin": "^0.93.0",
-    "rollup": "^1.2.3",
-    "rollup-plugin-babel": "^4.3.2"
+    "@babel/core": "^7.7.0",
+    "babel-eslint": "^10.0.3",
+    "babel-preset-github": "^3.2.1",
+    "eslint": "^6.6.0",
+    "eslint-plugin-github": "^3.2.1",
+    "flow-bin": "^0.111.1",
+    "rollup": "^1.26.3",
+    "rollup-plugin-babel": "^4.3.3"
   },
   "eslintConfig": {
     "extends": [
