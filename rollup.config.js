@@ -1,11 +1,7 @@
-/* @flow strict */
-
-import babel from 'rollup-plugin-babel'
-
-const pkg = require('./package.json')
-
+import typescript from 'rollup-plugin-typescript2'
+import pkg from './package.json'
 export default {
-  input: 'src/index.js',
+  input: 'src/index.ts',
   output: [
     {
       file: pkg['module'],
@@ -18,8 +14,6 @@ export default {
     }
   ],
   plugins: [
-    babel({
-      presets: ['github']
-    })
+    typescript()
   ]
 }

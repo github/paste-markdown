@@ -1,8 +1,15 @@
 {
   "extends": [
-    "plugin:flowtype/recommended",
+    "plugin:github/browser",
     "plugin:github/es6",
-    "plugin:github/browser"
+    "plugin:github/typescript"
   ],
-  "parser": "babel-eslint"
+  "overrides": [
+    {
+      "files": "test/*.js",
+      "rules": {
+        "github/unescaped-html-literal": "off"
+      }
+    }
+  ]
 }

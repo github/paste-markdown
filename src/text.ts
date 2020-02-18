@@ -1,6 +1,4 @@
-/* @flow strict */
-
-export function insertText(textarea: HTMLInputElement | HTMLTextAreaElement, text: string): void {
+export function insertText(textarea: HTMLTextAreaElement, text: string): void {
   const beginning = textarea.value.substring(0, textarea.selectionStart)
   const remaining = textarea.value.substring(textarea.selectionEnd)
 

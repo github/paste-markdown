@@ -1,12 +1,10 @@
-/* @flow strict */
-
 import {insertText} from './text'
 
-export function install(el: Element) {
+export function install(el: HTMLElement) {
   el.addEventListener('paste', onPaste)
 }
 
-export function uninstall(el: Element) {
+export function uninstall(el: HTMLElement) {
   el.removeEventListener('paste', onPaste)
 }
 

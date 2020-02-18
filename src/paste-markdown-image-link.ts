@@ -2,13 +2,13 @@
 
 import {insertText} from './text'
 
-export function install(el: Element) {
+export function install(el: HTMLElement) {
   el.addEventListener('dragover', onDragover)
   el.addEventListener('drop', onDrop)
   el.addEventListener('paste', onPaste)
 }
 
-export function uninstall(el: Element) {
+export function uninstall(el: HTMLElement) {
   el.removeEventListener('dragover', onDragover)
   el.removeEventListener('drop', onDrop)
   el.removeEventListener('paste', onPaste)
@@ -64,7 +64,7 @@ function hasLink(transfer: DataTransfer): boolean {
   return Array.from(transfer.types).indexOf('text/uri-list') >= 0
 }
 
-function extractLinks(transfer: DataTransfer): Array<string> {
+function extractLinks(transfer: DataTransfer): string[] {
   return (transfer.getData('text/uri-list') || '').split('\r\n')
 }
 

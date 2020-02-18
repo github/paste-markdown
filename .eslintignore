@@ -1,2 +1,4 @@
 dist
 prettier.config.js
+karma.config.js
+rollup.config.js
