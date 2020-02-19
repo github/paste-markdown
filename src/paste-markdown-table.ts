@@ -95,7 +95,7 @@ function parseTable(html: string): HTMLElement | null {
   return el.querySelector('table')
 }
 
-function hasTable(transfer: DataTransfer): HTMLElement | null | void {
+function hasTable(transfer: DataTransfer): HTMLElement | void {
   if (Array.from(transfer.types).indexOf('text/html') === -1) return
 
   const html = transfer.getData('text/html')
@@ -104,8 +104,8 @@ function hasTable(transfer: DataTransfer): HTMLElement | null | void {
   const table = parseTable(html)
   if (!table) return
 
-  // Edge copies the surrounding table from our issue comment text.
-  if (table.closest('.js-comment')) return
+  // Prevent pasting layout table
+  if (table.closest('[data-layout-table]')) return
 
-  return /\b(js|blob|diff)-./.test(table.className) ? null : table
+  return table
 }
