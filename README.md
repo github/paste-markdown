@@ -1,7 +1,8 @@
 # Paste Markdown objects
 
-Paste spreadsheet cells as a Markdown table. Convert pasted image URLs to
-Markdown image link syntax.
+- Paste spreadsheet cells and HTML tables as a Markdown tables.
+- Paste image URLs as Markdown image links.
+- *Paste markdown as markdown. See [`@github/quote-selection`/Preserving markdown syntax](https://github.com/github/quote-selection/tree/9ae5f88f5bc3021f51d2dc9981eca83ce7cfe04f#preserving-markdown-syntax) for details.
 
 ## Installation
 
@@ -29,6 +30,16 @@ import subscribe from '@github/paste-markdown'
 
 // Subscribe the behavior to all matching textareas.
 observe('textarea[data-paste-markdown]', {subscribe})
+```
+
+### Excluding `<table>`s
+
+Some `<table>`s are not meant to be pasted as markdown; for example, a file content table with line numbers in a column. Use `data-paste-markdown-skip` to prevent it.
+
+```html
+<table data-paste-markdown-skip>
+  ...
+</table>
 ```
 
 ## Development
