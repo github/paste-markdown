@@ -41,7 +41,7 @@ describe('paste-markdown', function() {
     it('rejects layout tables', function() {
       const data = {
         'text/html': `
-        <table data-layout-table>
+        <table data-paste-markdown-skip>
           <thead><tr><th>name</th><th>origin</th></tr></thead>
           <tbody>
             <tr><td>hubot</td><td>github</td></tr>

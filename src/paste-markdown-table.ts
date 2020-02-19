@@ -105,7 +105,7 @@ function hasTable(transfer: DataTransfer): HTMLElement | void {
   if (!table) return
 
   // Prevent pasting layout table
-  if (table.closest('[data-layout-table]')) return
+  if (table.closest('[data-paste-markdown-skip]')) return
 
   return table
 }
