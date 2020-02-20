@@ -1,7 +1,10 @@
 module.exports = function(config) {
   config.set({
     frameworks: ['mocha', 'chai'],
-    files: [{pattern: 'dist/index.esm.js', type: 'module'}, {pattern: 'test/test.js', type: 'module'}],
+    files: [
+      {pattern: 'dist/index.esm.js', type: 'module'},
+      {pattern: 'test/test.js', type: 'module'}
+    ],
     reporters: ['mocha'],
     port: 9876,
     colors: true,
