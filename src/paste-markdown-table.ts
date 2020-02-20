@@ -95,17 +95,12 @@ function parseTable(html: string): HTMLElement | null {
   return el.querySelector('table')
 }
 
-function hasTable(transfer: DataTransfer): HTMLElement | void {
-  if (Array.from(transfer.types).indexOf('text/html') === -1) return
+function hasTable(transfer: DataTransfer): HTMLElement | null {
+  if (Array.from(transfer.types).indexOf('text/html') === -1) return null
 
   const html = transfer.getData('text/html')
-  if (!/<table/i.test(html)) return
+  if (!/<table/i.test(html)) return null
 
   const table = parseTable(html)
-  if (!table) return
-
-  // Prevent pasting layout table
-  if (table.closest('[data-paste-markdown-skip]')) return
-
-  return table
+  return !table || table.closest('[data-paste-markdown-skip]') ? null : table
 }
