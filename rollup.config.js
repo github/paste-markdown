@@ -13,7 +13,5 @@ export default {
       name: 'paste-markdown'
     }
   ],
-  plugins: [
-    typescript()
-  ]
+  plugins: [typescript()]
 }
