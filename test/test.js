@@ -38,10 +38,10 @@ describe('paste-markdown', function() {
       assert.include(textarea.value, 'name | origin\n-- | --\nhubot | github\nbender | futurama')
     })
 
-    it('rejects HTML from github.com markup', function() {
+    it('rejects layout tables', function() {
       const data = {
         'text/html': `
-        <table class="js-comment">
+        <table data-paste-markdown-skip>
           <thead><tr><th>name</th><th>origin</th></tr></thead>
           <tbody>
             <tr><td>hubot</td><td>github</td></tr>
