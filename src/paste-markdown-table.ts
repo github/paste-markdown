@@ -2,13 +2,13 @@
 
 import {insertText} from './text'
 
-export function install(el: Element) {
+export function install(el: HTMLElement) {
   el.addEventListener('dragover', onDragover)
   el.addEventListener('drop', onDrop)
   el.addEventListener('paste', onPaste)
 }
 
-export function uninstall(el: Element) {
+export function uninstall(el: HTMLElement) {
   el.removeEventListener('dragover', onDragover)
   el.removeEventListener('drop', onDrop)
   el.removeEventListener('paste', onPaste)
@@ -58,21 +58,23 @@ function hasFile(transfer: DataTransfer): boolean {
 
 function columnText(column: Element): string {
   const noBreakSpace = '\u00A0'
-  const text = column.textContent
+  const text = (column.textContent || '')
     .trim()
     .replace(/\|/g, '\\|')
     .replace(/\n/g, ' ')
   return text || noBreakSpace
 }
 
-function tableHeaders(row: Element): Array<string> {
+function tableHeaders(row: Element): string[] {
   return Array.from(row.querySelectorAll('td, th')).map(columnText)
 }
 
 function tableMarkdown(node: Element): string {
   const rows = Array.from(node.querySelectorAll('tr'))
 
-  const headers = tableHeaders(rows.shift())
+  const firstRow = rows.shift()
+  if (!firstRow) return ''
+  const headers = tableHeaders(firstRow)
   const spacers = headers.map(() => '--')
   const header = `${headers.join(' | ')}\n${spacers.join(' | ')}\n`
 
@@ -87,13 +89,13 @@ function tableMarkdown(node: Element): string {
   return `\n${header}${body}\n\n`
 }
 
-function parseTable(html: string): ?Element {
+function parseTable(html: string): HTMLElement | null {
   const el = document.createElement('div')
   el.innerHTML = html
   return el.querySelector('table')
 }
 
-function hasTable(transfer: DataTransfer): ?Element {
+function hasTable(transfer: DataTransfer): HTMLElement | null | void {
   if (Array.from(transfer.types).indexOf('text/html') === -1) return
 
   const html = transfer.getData('text/html')

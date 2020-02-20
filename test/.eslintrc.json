@@ -1,7 +1,4 @@
 {
-  "rules": {
-    "flowtype/require-valid-file-annotation": "off"
-  },
   "env": {
     "mocha": true
   },

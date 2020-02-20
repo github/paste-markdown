@@ -1,8 +1,7 @@
 {
   "extends": [
-    "plugin:flowtype/recommended",
+    "plugin:github/browser",
     "plugin:github/es6",
-    "plugin:github/browser"
-  ],
-  "parser": "babel-eslint"
+    "plugin:github/typescript"
+  ]
 }
