@@ -2,13 +2,13 @@
 
 import {insertText} from './text'
 
-export function install(el: HTMLElement) {
+export function install(el: HTMLElement): void {
   el.addEventListener('dragover', onDragover)
   el.addEventListener('drop', onDrop)
   el.addEventListener('paste', onPaste)
 }
 
-export function uninstall(el: HTMLElement) {
+export function uninstall(el: HTMLElement): void {
   el.removeEventListener('dragover', onDragover)
   el.removeEventListener('drop', onDrop)
   el.removeEventListener('paste', onPaste)
@@ -58,10 +58,7 @@ function hasFile(transfer: DataTransfer): boolean {
 
 function columnText(column: Element): string {
   const noBreakSpace = '\u00A0'
-  const text = (column.textContent || '')
-    .trim()
-    .replace(/\|/g, '\\|')
-    .replace(/\n/g, ' ')
+  const text = (column.textContent || '').trim().replace(/\|/g, '\\|').replace(/\n/g, ' ')
   return text || noBreakSpace
 }
 
@@ -80,9 +77,7 @@ function tableMarkdown(node: Element): string {
 
   const body = rows
     .map(row => {
-      return Array.from(row.querySelectorAll('td'))
-        .map(columnText)
-        .join(' | ')
+      return Array.from(row.querySelectorAll('td')).map(columnText).join(' | ')
     })
     .join('\n')
 

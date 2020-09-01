@@ -1,9 +1,9 @@
 import subscribe from '../dist/index.esm.js'
 
-describe('paste-markdown', function() {
-  describe('installed on textarea', function() {
+describe('paste-markdown', function () {
+  describe('installed on textarea', function () {
     let subscription, textarea
-    beforeEach(function() {
+    beforeEach(function () {
       document.body.innerHTML = `
         <textarea data-paste-markdown></textarea>
       `
@@ -12,17 +12,17 @@ describe('paste-markdown', function() {
       subscription = subscribe(textarea)
     })
 
-    afterEach(function() {
+    afterEach(function () {
       subscription.unsubscribe()
       document.body.innerHTML = ''
     })
 
-    it('turns image uris into markdown', function() {
+    it('turns image uris into markdown', function () {
       paste(textarea, {'text/uri-list': 'https://github.com/github.png\r\nhttps://github.com/hubot.png'})
       assert.include(textarea.value, '![](https://github.com/github.png)\n\n![](https://github.com/hubot.png)')
     })
 
-    it('turns html tables into markdown', function() {
+    it('turns html tables into markdown', function () {
       const data = {
         'text/html': `
         <table>
@@ -38,7 +38,7 @@ describe('paste-markdown', function() {
       assert.include(textarea.value, 'name | origin\n-- | --\nhubot | github\nbender | futurama')
     })
 
-    it('rejects layout tables', function() {
+    it('rejects layout tables', function () {
       const data = {
         'text/html': `
         <table data-paste-markdown-skip>
@@ -54,7 +54,7 @@ describe('paste-markdown', function() {
       assert.equal(textarea.value, '')
     })
 
-    it('accepts x-gfm', function() {
+    it('accepts x-gfm', function () {
       paste(textarea, {'text/plain': 'hello', 'text/x-gfm': '# hello'})
       assert.include(textarea.value, '# hello')
     })

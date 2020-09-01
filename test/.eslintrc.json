@@ -4,6 +4,5 @@
   },
   "globals": {
     "assert": true
-  },
-  "extends": "../.eslintrc.json"
+  }
 }
