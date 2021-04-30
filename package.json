@@ -41,12 +41,5 @@
     "rollup": "^2.46.0",
     "rollup-plugin-typescript2": "^0.30.0",
     "typescript": "^4.2.4"
-  },
-  "eslintConfig": {
-    "extends": [
-      "plugin:github/browser",
-      "plugin:github/recommended",
-      "plugin:github/typescript"
-    ]
   }
 }
