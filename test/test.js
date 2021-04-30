@@ -38,6 +38,27 @@ describe('paste-markdown', function () {
       assert.include(textarea.value, 'name | origin\n-- | --\nhubot | github\nbender | futurama')
     })
 
+    it('rejects tables with extra text', async function () {
+      const data = {
+        'text/html': `
+        <p>Here is a cool table</p>
+        <table>
+          <thead><tr><th>name</th><th>origin</th></tr></thead>
+          <tbody>
+            <tr><td>hubot</td><td>github</td></tr>
+            <tr><td>bender</td><td>futurama</td></tr>
+          </tbody>
+        </table>
+        <p>Very cool</p>
+        `
+      }
+
+      // Synthetic paste events don't manipulate the DOM. A empty textarea
+      // means that the event handler didn't fire and normal paste happened.
+      paste(textarea, data)
+      assert.equal(textarea.value, '')
+    })
+
     it('rejects layout tables', function () {
       const data = {
         'text/html': `
@@ -51,6 +72,9 @@ describe('paste-markdown', function () {
         `
       }
       paste(textarea, data)
+
+      // Synthetic paste events don't manipulate the DOM. A empty textarea
+      // means that the event handler didn't fire and normal paste happened.
       assert.equal(textarea.value, '')
     })
 
