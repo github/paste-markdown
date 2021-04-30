@@ -95,5 +95,5 @@ function generateText(transfer: DataTransfer): string | undefined {
 
   const formattedTable = tableMarkdown(table)
 
-  return html.replace(/<meta.*?>/, '').replace(/<table.*<\/table>/, `\n${formattedTable}`)
+  return html.replace(/<meta.*?>/, '').replace(/<table[.\S\s]*<\/table>/, `\n${formattedTable}`)
 }

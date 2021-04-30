@@ -53,10 +53,12 @@ describe('paste-markdown', function () {
         `
       }
 
-      // Synthetic paste events don't manipulate the DOM. A empty textarea
-      // means that the event handler didn't fire and normal paste happened.
       paste(textarea, data)
-      assert.equal(textarea.value, '')
+      assert.equal(
+        textarea.value.trim(),
+        // eslint-disable-next-line github/unescaped-html-literal
+        '<p>Here is a cool table</p>\n        \n\nname | origin\n-- | --\nhubot | github\nbender | futurama\n\n\n        <p>Very cool</p>'
+      )
     })
 
     it('rejects layout tables', function () {
