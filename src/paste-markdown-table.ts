@@ -85,7 +85,16 @@ function tableMarkdown(node: Element): string {
 function parseTable(html: string): HTMLElement | null {
   const el = document.createElement('div')
   el.innerHTML = html
-  return el.querySelector('table')
+
+  const table = el.querySelector('table')
+  table?.remove()
+
+  // Reject tables that have extra text around them.
+  if (el?.textContent?.trim()) {
+    return null
+  }
+
+  return table
 }
 
 function getTable(transfer: DataTransfer): HTMLElement | null {
