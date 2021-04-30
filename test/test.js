@@ -38,7 +38,7 @@ describe('paste-markdown', function () {
       assert.include(textarea.value, 'name | origin\n-- | --\nhubot | github\nbender | futurama')
     })
 
-    it('rejects tables with extra text', async function () {
+    it('retains text around tables', async function () {
       const data = {
         'text/html': `
         <p>Here is a cool table</p>
