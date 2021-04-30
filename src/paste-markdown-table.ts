@@ -20,7 +20,7 @@ function onDrop(event: DragEvent) {
 
   if (hasFile(transfer)) return
 
-  const table = hasTable(transfer)
+  const table = getTable(transfer)
   if (!table) return
 
   event.stopPropagation()
@@ -40,7 +40,7 @@ function onDragover(event: DragEvent) {
 function onPaste(event: ClipboardEvent) {
   if (!event.clipboardData) return
 
-  const table = hasTable(event.clipboardData)
+  const table = getTable(event.clipboardData)
   if (!table) return
 
   event.stopPropagation()
@@ -90,7 +90,7 @@ function parseTable(html: string): HTMLElement | null {
   return el.querySelector('table')
 }
 
-function hasTable(transfer: DataTransfer): HTMLElement | null {
+function getTable(transfer: DataTransfer): HTMLElement | null {
   if (Array.from(transfer.types).indexOf('text/html') === -1) return null
 
   const html = transfer.getData('text/html')
