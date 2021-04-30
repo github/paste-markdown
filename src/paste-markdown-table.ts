@@ -1,5 +1,3 @@
-/* @flow strict */
-
 import {insertText} from './text'
 
 export function install(el: HTMLElement): void {
