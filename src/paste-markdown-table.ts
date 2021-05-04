@@ -1,5 +1,3 @@
-/* @flow strict */
-
 import {insertText} from './text'
 
 export function install(el: HTMLElement): void {
@@ -17,18 +15,17 @@ export function uninstall(el: HTMLElement): void {
 function onDrop(event: DragEvent) {
   const transfer = event.dataTransfer
   if (!transfer) return
-
   if (hasFile(transfer)) return
 
-  const table = hasTable(transfer)
-  if (!table) return
+  const textToPaste = generateText(transfer)
+  if (!textToPaste) return
 
   event.stopPropagation()
   event.preventDefault()
 
   const field = event.currentTarget
   if (field instanceof HTMLTextAreaElement) {
-    insertText(field, tableMarkdown(table))
+    insertText(field, textToPaste)
   }
 }
 
@@ -40,15 +37,15 @@ function onDragover(event: DragEvent) {
 function onPaste(event: ClipboardEvent) {
   if (!event.clipboardData) return
 
-  const table = hasTable(event.clipboardData)
-  if (!table) return
+  const textToPaste = generateText(event.clipboardData)
+  if (!textToPaste) return
 
   event.stopPropagation()
   event.preventDefault()
 
   const field = event.currentTarget
   if (field instanceof HTMLTextAreaElement) {
-    insertText(field, tableMarkdown(table))
+    insertText(field, textToPaste)
   }
 }
 
@@ -84,18 +81,19 @@ function tableMarkdown(node: Element): string {
   return `\n${header}${body}\n\n`
 }
 
-function parseTable(html: string): HTMLElement | null {
-  const el = document.createElement('div')
-  el.innerHTML = html
-  return el.querySelector('table')
-}
-
-function hasTable(transfer: DataTransfer): HTMLElement | null {
-  if (Array.from(transfer.types).indexOf('text/html') === -1) return null
+function generateText(transfer: DataTransfer): string | undefined {
+  if (Array.from(transfer.types).indexOf('text/html') === -1) return
 
   const html = transfer.getData('text/html')
-  if (!/<table/i.test(html)) return null
+  if (!/<table/i.test(html)) return
 
-  const table = parseTable(html)
-  return !table || table.closest('[data-paste-markdown-skip]') ? null : table
+  const el = document.createElement('div')
+  el.innerHTML = html
+  let table = el.querySelector('table')
+  table = !table || table.closest('[data-paste-markdown-skip]') ? null : table
+  if (!table) return
+
+  const formattedTable = tableMarkdown(table)
+
+  return html.replace(/<meta.*?>/, '').replace(/<table[.\S\s]*<\/table>/, `\n${formattedTable}`)
 }
