@@ -57,7 +57,37 @@ describe('paste-markdown', function () {
       assert.equal(
         textarea.value.trim(),
         // eslint-disable-next-line github/unescaped-html-literal
-        '<p>Here is a cool table</p>\n        \n\nname | origin\n-- | --\nhubot | github\nbender | futurama\n\n\n        <p>Very cool</p>'
+        '<p>Here is a cool table</p>\n        \nname | origin\n-- | --\nhubot | github\nbender | futurama\n\n\n        <p>Very cool</p>'
+      )
+    })
+
+    it('pastes multiple tables', async function () {
+      const data = {
+        'text/html': `
+        <p>Here is a cool table</p>
+        <table>
+          <thead><tr><th>name</th><th>origin</th></tr></thead>
+          <tbody>
+            <tr><td>hubot</td><td>github</td></tr>
+            <tr><td>bender</td><td>futurama</td></tr>
+          </tbody>
+        </table>
+        <p>Another very cool table</p>
+        <table>
+          <thead><tr><th>name</th><th>origin</th></tr></thead>
+          <tbody>
+            <tr><td>hubot</td><td>github</td></tr>
+            <tr><td>bender</td><td>futurama</td></tr>
+          </tbody>
+        </table>
+        `
+      }
+
+      paste(textarea, data)
+      assert.equal(
+        textarea.value.trim(),
+        // eslint-disable-next-line github/unescaped-html-literal
+        '<p>Here is a cool table</p>\n        \nname | origin\n-- | --\nhubot | github\nbender | futurama\n\n\n        <p>Another very cool table</p>\n        \nname | origin\n-- | --\nhubot | github\nbender | futurama'
       )
     })
 
@@ -75,9 +105,10 @@ describe('paste-markdown', function () {
       }
       paste(textarea, data)
 
-      // Synthetic paste events don't manipulate the DOM. A empty textarea
-      // means that the event handler didn't fire and normal paste happened.
-      assert.equal(textarea.value, '')
+      assert.equal(
+        textarea.value,
+        '\n        \n          nameorigin\n          \n            hubotgithub\n            benderfuturama\n          \n        \n        '
+      )
     })
 
     it('accepts x-gfm', function () {
