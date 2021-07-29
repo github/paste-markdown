@@ -4,8 +4,7 @@
     "target": "es2017",
     "lib": [
       "es2018",
-      "dom",
-      "dom.iterable"
+      "dom"
     ],
     "strict": true,
     "declaration": true,
