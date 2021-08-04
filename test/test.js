@@ -97,3 +97,7 @@ function paste(textarea, data) {
   })
   textarea.dispatchEvent(event)
 }
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
