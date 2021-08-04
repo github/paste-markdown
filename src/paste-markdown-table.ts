@@ -84,22 +84,16 @@ function tableMarkdown(node: Element): string {
 function generateText(transfer: DataTransfer): string | undefined {
   if (Array.from(transfer.types).indexOf('text/html') === -1) return
 
-  let html = transfer.getData('text/html')
+  const html = transfer.getData('text/html')
   if (!/<table/i.test(html)) return
-
-  html = html.replace(/<meta.*?>/, '')
 
   const el = document.createElement('div')
   el.innerHTML = html
-  const tables = el.querySelectorAll('table')
+  let table = el.querySelector('table')
+  table = !table || table.closest('[data-paste-markdown-skip]') ? null : table
+  if (!table) return
 
-  for (const table of tables) {
-    if (table.closest('[data-paste-markdown-skip]')) {
-      table.replaceWith(new Text(table.textContent || ''))
-    }
-    const formattedTable = tableMarkdown(table)
-    table.replaceWith(new Text(formattedTable))
-  }
+  const formattedTable = tableMarkdown(table)
 
-  return el.innerHTML
+  return html.replace(/<meta.*?>/, '').replace(/<table[.\S\s]*<\/table>/, `\n${formattedTable}`)
 }
