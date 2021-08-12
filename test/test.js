@@ -38,6 +38,21 @@ describe('paste-markdown', function () {
       assert.include(textarea.value, 'name | origin\n-- | --\nhubot | github\nbender | futurama')
     })
 
+    it("doesn't execute JavaScript", async function () {
+      let alertCalled = false
+      window.secretFunction = function () {
+        alertCalled = true
+      }
+      const data = {
+        'text/html': `XSS<img/src/onerror=secretFunction()><table>`
+      }
+      paste(textarea, data)
+
+      await wait(100)
+
+      assert.isFalse(alertCalled, 'A XSS was possible as alert was called')
+    })
+
     it('retains text around tables', async function () {
       const data = {
         'text/html': `
@@ -96,4 +111,8 @@ function paste(textarea, data) {
     clipboardData: dataTransfer
   })
   textarea.dispatchEvent(event)
+}
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }

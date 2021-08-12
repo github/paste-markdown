@@ -87,9 +87,10 @@ function generateText(transfer: DataTransfer): string | undefined {
   const html = transfer.getData('text/html')
   if (!/<table/i.test(html)) return
 
-  const el = document.createElement('div')
-  el.innerHTML = html
-  let table = el.querySelector('table')
+  const parser = new DOMParser()
+  const parsedDocument = parser.parseFromString(html, 'text/html')
+
+  let table = parsedDocument.querySelector('table')
   table = !table || table.closest('[data-paste-markdown-skip]') ? null : table
   if (!table) return
 
