@@ -25,7 +25,7 @@ function onPaste(event: ClipboardEvent) {
 
   const selectedText = field.value.substring(field.selectionStart, field.selectionEnd)
 
-  insertText(field, linkify(selectedText, text), false)
+  insertText(field, linkify(selectedText, text), {addNewline: false})
 }
 
 function hasPlainText(transfer: DataTransfer): boolean {
