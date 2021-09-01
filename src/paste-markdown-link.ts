@@ -47,8 +47,6 @@ function linkify(selectedText: string, text: string): string {
   return selectedText.length && isURL(text) ? `[${selectedText}](${text})` : text
 }
 
-const URL_RE = /^https?:\/\//i
-
 function isURL(url: string): boolean {
-  return URL_RE.test(url)
+  return /^https?:\/\//i.test(url)
 }
