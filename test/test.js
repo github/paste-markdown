@@ -22,6 +22,13 @@ describe('paste-markdown', function () {
       assert.include(textarea.value, '![](https://github.com/github.png)\n\n![](https://github.com/hubot.png)')
     })
 
+    it('turns pasted urls on selected text into markdown links', function () {
+      textarea.value = 'The examples can be found here.'
+      textarea.setSelectionRange(26, 30)
+      paste(textarea, {'text/plain': 'https://github.com'})
+      assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
+    })
+
     it('turns html tables into markdown', function () {
       const data = {
         'text/html': `
