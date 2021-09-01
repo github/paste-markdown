@@ -29,7 +29,7 @@ function onPaste(event: ClipboardEvent) {
 }
 
 function hasPlainText(transfer: DataTransfer): boolean {
-  return Array.from(transfer.types).indexOf('text/plain') >= 0
+  return Array.from(transfer.types).includes('text/plain')
 }
 
 function isWithinLink(textarea: HTMLTextAreaElement): boolean {
