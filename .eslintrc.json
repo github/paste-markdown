@@ -6,6 +6,14 @@
       "files": "*.js",
       "parser": "espree",
       "parserOptions": {"ecmaVersion": 8}
+    },
+    {
+      "files": "test/test.js",
+      "rules": {
+        "import/extensions": "off",
+        "import/no-unresolved": "off",
+        "github/no-inner-html": "off"
+      }
     }
   ]
 }

@@ -2,7 +2,8 @@ import subscribe from '../dist/index.esm.js'
 
 describe('paste-markdown', function () {
   describe('installed on textarea', function () {
-    let subscription, textarea
+    let subscription
+    let textarea
     beforeEach(function () {
       document.body.innerHTML = `
         <textarea data-paste-markdown></textarea>
