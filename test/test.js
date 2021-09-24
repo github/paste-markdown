@@ -1,4 +1,4 @@
-import {subscribe, installLink, uninstallLink} from '../dist/index.esm.js'
+import {subscribe} from '../dist/index.esm.js'
 
 describe('paste-markdown', function () {
   describe('installed on textarea', function () {
@@ -11,12 +11,10 @@ describe('paste-markdown', function () {
 
       textarea = document.querySelector('textarea[data-paste-markdown]')
       subscription = subscribe(textarea)
-      installLink(textarea)
     })
 
     afterEach(function () {
       subscription.unsubscribe()
-      uninstallLink(textarea)
       document.body.innerHTML = ''
     })
 

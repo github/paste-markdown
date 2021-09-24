@@ -10,12 +10,14 @@ interface Subscription {
 function subscribe(el: HTMLElement): Subscription {
   installTable(el)
   installImageLink(el)
+  installLink(el)
   installText(el)
 
   return {
     unsubscribe: () => {
       uninstallTable(el)
       uninstallImageLink(el)
+      uninstallLink(el)
       uninstallText(el)
     }
   }
