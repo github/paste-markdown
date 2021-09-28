@@ -24,6 +24,7 @@ describe('paste-markdown', function () {
     })
 
     it('turns pasted urls on selected text into markdown links', function () {
+      // eslint-disable-next-line i18n-text/no-en
       textarea.value = 'The examples can be found here.'
       textarea.setSelectionRange(26, 30)
       paste(textarea, {'text/plain': 'https://github.com'})
