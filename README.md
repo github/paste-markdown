@@ -14,7 +14,7 @@ $ npm install @github/paste-markdown
 ## Usage
 
 ```js
-import subscribe from '@github/paste-markdown'
+import {subscribe} from '@github/paste-markdown'
 
 // Subscribe the behavior to the textarea.
 subscribe(document.querySelector('textarea[data-paste-markdown]'))
@@ -27,7 +27,7 @@ be applied to any element matching a selector.
 
 ```js
 import {observe} from 'selector-observer'
-import subscribe from '@github/paste-markdown'
+import {subscribe} from '@github/paste-markdown'
 
 // Subscribe the behavior to all matching textareas.
 observe('textarea[data-paste-markdown]', {subscribe})
