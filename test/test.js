@@ -1,4 +1,4 @@
-import subscribe from '../dist/index.esm.js'
+import {subscribe} from '../dist/index.esm.js'
 
 describe('paste-markdown', function () {
   describe('installed on textarea', function () {
@@ -21,6 +21,14 @@ describe('paste-markdown', function () {
     it('turns image uris into markdown', function () {
       paste(textarea, {'text/uri-list': 'https://github.com/github.png\r\nhttps://github.com/hubot.png'})
       assert.include(textarea.value, '![](https://github.com/github.png)\n\n![](https://github.com/hubot.png)')
+    })
+
+    it('turns pasted urls on selected text into markdown links', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here.'
+      textarea.setSelectionRange(26, 30)
+      paste(textarea, {'text/plain': 'https://github.com'})
+      assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
     })
 
     it('turns html tables into markdown', function () {

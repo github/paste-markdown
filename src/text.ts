@@ -1,8 +1,12 @@
-export function insertText(textarea: HTMLInputElement | HTMLTextAreaElement, text: string): void {
+export function insertText(
+  textarea: HTMLInputElement | HTMLTextAreaElement,
+  text: string,
+  options = {addNewline: true}
+): void {
   const beginning = textarea.value.substring(0, textarea.selectionStart || 0)
   const remaining = textarea.value.substring(textarea.selectionEnd || 0)
 
-  const newline = beginning.length === 0 || beginning.match(/\n$/) ? '' : '\n'
+  const newline = !options.addNewline || beginning.length === 0 || beginning.match(/\n$/) ? '' : '\n'
   const textBeforeCursor = beginning + newline + text
 
   textarea.value = textBeforeCursor + remaining

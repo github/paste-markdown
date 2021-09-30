@@ -46,12 +46,15 @@
 
   <img src="https://github.com/hubot.png" width="100" alt="hubot">
 
-  <textarea cols="50" rows="10"></textarea>
+  <p>Test by copying this page's URL and then selecting <i>here</i> in the textarea and pasting the URL.</p>
+
+  <textarea cols="50" rows="10">The examples can be found here.</textarea>
 
   <script type="module">
-    // import subscribe from '../dist/index.esm.js'
-    import subscribe from 'https://unpkg.com/@github/paste-markdown/dist/index.esm.js'
+    // import {subscribe} from '../dist/index.esm.js'
+    import {subscribe} from 'https://unpkg.com/@github/paste-markdown/dist/index.esm.js'
     subscribe(document.querySelector('textarea'))
+    installLink(document.querySelector('textarea'))
   </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 # Paste Markdown objects
 
 - Paste spreadsheet cells and HTML tables as a Markdown tables.
+- Paste URLs on selected text as Markdown links.
 - Paste image URLs as Markdown image links.
 - Paste markdown as markdown. See [`@github/quote-selection`/Preserving markdown syntax](https://github.com/github/quote-selection/tree/9ae5f88f5bc3021f51d2dc9981eca83ce7cfe04f#preserving-markdown-syntax) for details.
 
@@ -13,7 +14,7 @@ $ npm install @github/paste-markdown
 ## Usage
 
 ```js
-import subscribe from '@github/paste-markdown'
+import {subscribe} from '@github/paste-markdown'
 
 // Subscribe the behavior to the textarea.
 subscribe(document.querySelector('textarea[data-paste-markdown]'))
@@ -26,7 +27,7 @@ be applied to any element matching a selector.
 
 ```js
 import {observe} from 'selector-observer'
-import subscribe from '@github/paste-markdown'
+import {subscribe} from '@github/paste-markdown'
 
 // Subscribe the behavior to all matching textareas.
 observe('textarea[data-paste-markdown]', {subscribe})
