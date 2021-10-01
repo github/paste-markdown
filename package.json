@@ -22,9 +22,7 @@
   ],
   "license": "MIT",
   "files": [
-    "dist/index.d.ts",
-    "dist/index.esm.js",
-    "dist/index.umd.js"
+    "dist/*"
   ],
   "prettier": "@github/prettier-config",
   "devDependencies": {
