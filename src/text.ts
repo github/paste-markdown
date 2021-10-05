@@ -1,6 +1,6 @@
 export function insertText(textarea: HTMLInputElement | HTMLTextAreaElement, text: string): void {
-  const before = textarea.value.slice(0, textarea.selectionStart || undefined)
-  const after = textarea.value.slice(textarea.selectionEnd || undefined)
+  const before = textarea.value.slice(0, textarea.selectionStart ?? undefined)
+  const after = textarea.value.slice(textarea.selectionEnd ?? undefined)
 
   let canInsertText = true
 
@@ -12,7 +12,7 @@ export function insertText(textarea: HTMLInputElement | HTMLTextAreaElement, tex
   }
   textarea.contentEditable = 'false'
 
-  if (canInsertText && !textarea.value.slice(0, textarea.selectionStart || undefined).endsWith(text)) {
+  if (canInsertText && !textarea.value.slice(0, textarea.selectionStart ?? undefined).endsWith(text)) {
     canInsertText = false
   }
 
