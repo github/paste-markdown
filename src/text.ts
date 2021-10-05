@@ -28,6 +28,6 @@ export function insertText(textarea: HTMLInputElement | HTMLTextAreaElement, tex
     } catch (e) {
       // Do nothing.
     }
-    textarea.dispatchEvent(new CustomEvent('input', {bubbles: true, cancelable: true}))
+    textarea.dispatchEvent(new CustomEvent('change', {bubbles: true, cancelable: true}))
   }
 }
