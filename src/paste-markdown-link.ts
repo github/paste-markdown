@@ -17,13 +17,14 @@ function onPaste(event: ClipboardEvent) {
 
   const text = transfer.getData('text/plain')
   if (!text) return
-
+  if (!isURL(text)) return
   if (isWithinLink(field)) return
+
+  const selectedText = field.value.substring(field.selectionStart, field.selectionEnd)
+  if (!selectedText.length) return
 
   event.stopPropagation()
   event.preventDefault()
-
-  const selectedText = field.value.substring(field.selectionStart, field.selectionEnd)
 
   insertText(field, linkify(selectedText, text), {addNewline: false})
 }
@@ -44,7 +45,7 @@ function isWithinLink(textarea: HTMLTextAreaElement): boolean {
 }
 
 function linkify(selectedText: string, text: string): string {
-  return selectedText.length && isURL(text) ? `[${selectedText}](${text})` : text
+  return `[${selectedText}](${text})`
 }
 
 function isURL(url: string): boolean {
