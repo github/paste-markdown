@@ -26,7 +26,7 @@ function onPaste(event: ClipboardEvent) {
   event.stopPropagation()
   event.preventDefault()
 
-  insertText(field, linkify(selectedText, text), {addNewline: false})
+  insertText(field, linkify(selectedText, text))
 }
 
 function hasPlainText(transfer: DataTransfer): boolean {

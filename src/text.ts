@@ -1,24 +1,33 @@
-export function insertText(
-  textarea: HTMLInputElement | HTMLTextAreaElement,
-  text: string,
-  options = {addNewline: true}
-): void {
-  const beginning = textarea.value.substring(0, textarea.selectionStart || 0)
-  const remaining = textarea.value.substring(textarea.selectionEnd || 0)
+export function insertText(textarea: HTMLInputElement | HTMLTextAreaElement, text: string): void {
+  const before = textarea.value.slice(0, textarea.selectionStart ?? undefined)
+  const after = textarea.value.slice(textarea.selectionEnd ?? undefined)
 
-  const newline = !options.addNewline || beginning.length === 0 || beginning.match(/\n$/) ? '' : '\n'
-  const textBeforeCursor = beginning + newline + text
+  let canInsertText = true
 
-  textarea.value = textBeforeCursor + remaining
-  textarea.selectionStart = textBeforeCursor.length
-  textarea.selectionEnd = textarea.selectionStart
+  textarea.contentEditable = 'true'
+  try {
+    canInsertText = document.execCommand('insertText', false, text)
+  } catch (error) {
+    canInsertText = false
+  }
+  textarea.contentEditable = 'false'
 
-  textarea.dispatchEvent(
-    new CustomEvent('change', {
-      bubbles: true,
-      cancelable: false
-    })
-  )
+  if (canInsertText && !textarea.value.slice(0, textarea.selectionStart ?? undefined).endsWith(text)) {
+    canInsertText = false
+  }
 
-  textarea.focus()
+  if (!canInsertText) {
+    try {
+      document.execCommand('ms-beginUndoUnit')
+    } catch (e) {
+      // Do nothing.
+    }
+    textarea.value = before + text + after
+    try {
+      document.execCommand('ms-endUndoUnit')
+    } catch (e) {
+      // Do nothing.
+    }
+    textarea.dispatchEvent(new CustomEvent('change', {bubbles: true, cancelable: true}))
+  }
 }
