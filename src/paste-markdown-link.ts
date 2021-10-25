@@ -22,6 +22,9 @@ function onPaste(event: ClipboardEvent) {
 
   const selectedText = field.value.substring(field.selectionStart, field.selectionEnd)
   if (!selectedText.length) return
+  // Prevent linkification when replacing an URL
+  // Trim whitespace in case whitespace is selected by mistake or by intention
+  if (isURL(selectedText.trim())) return
 
   event.stopPropagation()
   event.preventDefault()

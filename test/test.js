@@ -31,6 +31,16 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
     })
 
+    it('turns pasted urls on selected urls not into markdown links', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here: https://docs.github.com'
+      textarea.setSelectionRange(32, 55)
+      paste(textarea, {'text/plain': 'https://github.com'})
+      // Synthetic paste events don't manipulate the DOM. The same textarea value
+      // means that the event handler didn't fire and normal paste happened.
+      assert.equal(textarea.value, 'The examples can be found here: https://docs.github.com')
+    })
+
     it('turns html tables into markdown', function () {
       const data = {
         'text/html': `
