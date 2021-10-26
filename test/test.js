@@ -31,7 +31,7 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
     })
 
-    it('turns pasted urls on selected urls not into markdown links', function () {
+    it("doesn't paste a markdown URL when pasting over a selected URL", function () {
       // eslint-disable-next-line i18n-text/no-en
       textarea.value = 'The examples can be found here: https://docs.github.com'
       textarea.setSelectionRange(32, 55)
