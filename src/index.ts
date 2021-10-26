@@ -7,11 +7,11 @@ interface Subscription {
   unsubscribe: () => void
 }
 
-function subscribe(el: HTMLElement): Subscription {
-  installTable(el)
-  installImageLink(el)
-  installLink(el)
-  installText(el)
+function subscribe(el: HTMLElement, {signal}: {signal?: AbortSignal} = {}): Subscription {
+  installTable(el, {signal})
+  installImageLink(el, {signal})
+  installLink(el, {signal})
+  installText(el, {signal})
 
   return {
     unsubscribe: () => {

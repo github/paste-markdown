@@ -2,10 +2,10 @@
 
 import {insertText} from './text'
 
-export function install(el: HTMLElement): void {
-  el.addEventListener('dragover', onDragover)
-  el.addEventListener('drop', onDrop)
-  el.addEventListener('paste', onPaste)
+export function install(el: HTMLElement, {signal}: {signal?: AbortSignal} = {}): void {
+  el.addEventListener('dragover', onDragover, {signal})
+  el.addEventListener('drop', onDrop, {signal})
+  el.addEventListener('paste', onPaste, {signal})
 }
 
 export function uninstall(el: HTMLElement): void {
