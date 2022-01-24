@@ -118,6 +118,35 @@ describe('paste-markdown', function () {
       paste(textarea, {'text/plain': 'hello', 'text/x-gfm': '# hello'})
       assert.include(textarea.value, '# hello')
     })
+
+    it('turns one html link into a markdown link', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const link = `<meta charset='utf-8'><meta charset="utf-8">
+        <b><a href="https://github.com/" style="text-decoration:none;"><span>link</span></a></b>`
+      const plaintextLink = 'link'
+      const markdownLink = '[link](https://github.com/)'
+
+      paste(textarea, {'text/html': link, 'text/plain': plaintextLink})
+      assert.equal(textarea.value, markdownLink)
+    })
+
+    it('turns mixed html content containing several links into appropriate markdown', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'><meta charset="utf-8">
+        <b style="font-weight:normal;"><p dir="ltr"><span>This is a </span>
+        <a href="https://github.com/"><span>link</span></a><span> and </span>
+        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><span>another link</span></a></p>
+        <br /><a href="https://github.com/"><span>Link</span></a><span> at the beginning, link at the </span>
+        <a href="https://github.com/"><span>end</span></a></b>`
+      // eslint-disable-next-line i18n-text/no-en
+      const plaintextSentence = 'This is a link and another link\n\nLink at the beginning, link at the end'
+      const markdownSentence =
+        'This is a [link](https://github.com/) and [another link](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n\n' +
+        '[Link](https://github.com/) at the beginning, link at the [end](https://github.com/)'
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
   })
 })
 
