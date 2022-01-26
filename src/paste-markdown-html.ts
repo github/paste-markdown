@@ -49,7 +49,7 @@ function transform(
   ...args: string[]
 ): string {
   let markdown = ''
-  for (const element of Array.from(elements)) {
+  for (const element of elements) {
     const textContent = element.textContent || ''
     const {part, index} = trimAfter(text, textContent)
     markdown += part.replace(textContent, transformer(element, args))
