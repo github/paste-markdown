@@ -55,7 +55,7 @@ function transform(
     markdownParts.push(part.replace(textContent, transformer(element, args)))
     text = text.slice(index)
   }
-  markdownParts.join(text)
+  markdownParts.push(text)
   return markdownParts.join('')
 }
 
