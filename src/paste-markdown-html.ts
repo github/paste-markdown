@@ -21,9 +21,9 @@ function onPaste(event: ClipboardEvent) {
   let text = transfer.getData('text/plain')
   const textHTML = transfer.getData('text/html')
   if (!textHTML) return
-  if (!text) return
 
   text = text.trim()
+  if (!text) return
 
   // Generate DOM tree from HTML string
   const parser = new DOMParser()
