@@ -76,7 +76,7 @@ function trimAfter(text: string, search = ''): {part: string; index: number} {
 }
 
 function hasHTML(transfer: DataTransfer): boolean {
-  return Array.from(transfer.types).includes('text/html')
+  return transfer.types.includes('text/html')
 }
 
 function linkify(element: HTMLAnchorElement): string {
