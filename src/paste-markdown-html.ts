@@ -48,15 +48,15 @@ function transform(
   transformer: MarkdownTransformer,
   ...args: string[]
 ): string {
-  let markdown = ''
+  const markdownParts = []
   for (const element of elements) {
     const textContent = element.textContent || ''
     const {part, index} = trimAfter(text, textContent)
-    markdown += part.replace(textContent, transformer(element, args))
+    markdownParts.push(part.replace(textContent, transformer(element, args)))
     text = text.slice(index)
   }
-  markdown += text
-  return markdown
+  markdownParts.join(text)
+  return markdownParts.join('')
 }
 
 // Trim text at index of last character of the first occurrence of "search" and
