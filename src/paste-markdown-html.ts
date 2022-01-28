@@ -83,8 +83,8 @@ function hasHTML(transfer: DataTransfer): boolean {
   return transfer.types.includes('text/html')
 }
 
-function hasLinkPreview(transfer) {
-  return transfer.types.includes('text/link-preview');
+function hasLinkPreview(transfer: DataTransfer): boolean {
+  return transfer.types.includes('text/link-preview')
 }
 
 function linkify(element: HTMLAnchorElement): string {
