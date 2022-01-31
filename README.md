@@ -2,6 +2,7 @@
 
 - Paste spreadsheet cells and HTML tables as a Markdown tables.
 - Paste URLs on selected text as Markdown links.
+- Paste text containing links as text containing Markdown links.
 - Paste image URLs as Markdown image links.
 - Paste markdown as markdown. See [`@github/quote-selection`/Preserving markdown syntax](https://github.com/github/quote-selection/tree/9ae5f88f5bc3021f51d2dc9981eca83ce7cfe04f#preserving-markdown-syntax) for details.
 
