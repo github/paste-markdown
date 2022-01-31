@@ -147,6 +147,23 @@ describe('paste-markdown', function () {
       paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
       assert.equal(textarea.value, markdownSentence)
     })
+
+    it('doesn\'t render any markdown for html link without corresponding plaintext', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const link = `<meta charset='utf-8'><a href="https://github.com/monalisa/playground/issues/1">
+        Link pasting · Issue #1 · monalisa/playground (github.com)</a>`
+      const plaintextLink = 'https://github.com/monalisa/playground/issues/1'
+      const linkPreviewLink = {
+        domain: 'github.com',
+        preferred_format: 'text/html;content=titled-hyperlink',
+        title: 'Link pasting · Issue #1 · monalisa/playground (github.com)',
+        type: 'website',
+        url: 'https://github.com/monalisa/playground/issues/1'
+      }
+
+      paste(textarea, {'text/html': link, 'text/plain': plaintextLink, 'text/link-preview': linkPreviewLink})
+      assert.equal(textarea.value, '')
+    })
   })
 })
 

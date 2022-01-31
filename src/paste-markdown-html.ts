@@ -13,10 +13,8 @@ type MarkdownTransformer = (element: HTMLElement | HTMLAnchorElement, args: stri
 function onPaste(event: ClipboardEvent) {
   const transfer = event.clipboardData
   // if there is no clipboard data, or
-  // if there is no html content in the clipboard, or
-  // if the browser has made an "improved URL for pasting", return
-  // See https://support.microsoft.com/en-gb/microsoft-edge/improved-copy-and-paste-of-urls-in-microsoft-edge-d3bd3956-603a-0033-1fbc-9588a30645b4 for more
-  if (!transfer || !hasHTML(transfer) || hasLinkPreview(transfer)) return
+  // if there is no html content in the clipboard, return
+  if (!transfer || !hasHTML(transfer)) return
 
   const field = event.currentTarget
   if (!(field instanceof HTMLTextAreaElement)) return
@@ -56,8 +54,10 @@ function transform(
   for (const element of elements) {
     const textContent = element.textContent || ''
     const {part, index} = trimAfter(text, textContent)
-    markdownParts.push(part.replace(textContent, transformer(element, args)))
-    text = text.slice(index)
+    if (index >= 0) {
+      markdownParts.push(part.replace(textContent, transformer(element, args)))
+      text = text.slice(index)
+    }
   }
   markdownParts.push(text)
   return markdownParts.join('')
@@ -81,10 +81,6 @@ function trimAfter(text: string, search = ''): {part: string; index: number} {
 
 function hasHTML(transfer: DataTransfer): boolean {
   return transfer.types.includes('text/html')
-}
-
-function hasLinkPreview(transfer: DataTransfer): boolean {
-  return transfer.types.includes('text/link-preview')
 }
 
 function linkify(element: HTMLAnchorElement): string {
