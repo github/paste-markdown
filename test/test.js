@@ -148,7 +148,7 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, markdownSentence)
     })
 
-    it('doesn\'t render any markdown for html link without corresponding plaintext', function () {
+    it("doesn't render any markdown for html link without corresponding plaintext", function () {
       // eslint-disable-next-line github/unescaped-html-literal
       const link = `<meta charset='utf-8'><a href="https://github.com/monalisa/playground/issues/1">
         Link pasting · Issue #1 · monalisa/playground (github.com)</a>`
