@@ -164,6 +164,43 @@ describe('paste-markdown', function () {
       paste(textarea, {'text/html': link, 'text/plain': plaintextLink, 'text/link-preview': linkPreviewLink})
       assert.equal(textarea.value, '')
     })
+
+    it("doesn't render any markdown for GitHub handles", function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const link = `<meta charset='utf-8'><a href="https://github.com/octocat" data-hovercard-type="user">@octocat</a>`
+      const plaintextLink = '@octocat'
+
+      paste(textarea, {'text/html': link, 'text/plain': plaintextLink})
+      assert.equal(textarea.value, '')
+    })
+
+    it("retains urls of special GitHub links", function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const href = 'https://github.com/octocat/repo/issues/1'
+      const link = `<meta charset='utf-8'><a href=${href} data-hovercard-type="issue">#1</a>`
+      const plaintextLink = '#1'
+
+      paste(textarea, {'text/html': link, 'text/plain': plaintextLink})
+      assert.equal(textarea.value, href)
+    })
+
+    it('leaves plaintext links alone', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'><meta charset="utf-8">
+        <b style="font-weight:normal;"><p dir="ltr"><span>This is a </span>
+        <a href="https://github.com/"><span>https://github.com</span></a><span> and </span>
+        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><span>another link</span></a></p>
+        <br /><a href="https://github.com/"><span>Link</span></a><span> at the beginning, link at the </span>
+        <a href="https://github.com/"><span>https://github.com/</span></a></b>`
+      // eslint-disable-next-line i18n-text/no-en
+      const plaintextSentence = 'This is a https://github.com and another link\n\nLink at the beginning, link at the https://github.com/'
+      const markdownSentence =
+        'This is a https://github.com/ and [another link](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n\n' +
+        '[Link](https://github.com/) at the beginning, link at the https://github.com/'
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
   })
 })
 
