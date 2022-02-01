@@ -174,9 +174,9 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, '')
     })
 
-    it("retains urls of special GitHub links", function () {
-      // eslint-disable-next-line github/unescaped-html-literal
+    it('retains urls of special GitHub links', function () {
       const href = 'https://github.com/octocat/repo/issues/1'
+      // eslint-disable-next-line github/unescaped-html-literal
       const link = `<meta charset='utf-8'><a href=${href} data-hovercard-type="issue">#1</a>`
       const plaintextLink = '#1'
 
@@ -192,8 +192,10 @@ describe('paste-markdown', function () {
         <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><span>another link</span></a></p>
         <br /><a href="https://github.com/"><span>Link</span></a><span> at the beginning, link at the </span>
         <a href="https://github.com/"><span>https://github.com/</span></a></b>`
-      // eslint-disable-next-line i18n-text/no-en
-      const plaintextSentence = 'This is a https://github.com and another link\n\nLink at the beginning, link at the https://github.com/'
+      /* eslint-disable i18n-text/no-en */
+      const plaintextSentence =
+        'This is a https://github.com and another link\n\nLink at the beginning, link at the https://github.com/'
+      /* eslint-enable i18n-text/no-en */
       const markdownSentence =
         'This is a https://github.com/ and [another link](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n\n' +
         '[Link](https://github.com/) at the beginning, link at the https://github.com/'
