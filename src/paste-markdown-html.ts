@@ -12,6 +12,8 @@ type MarkdownTransformer = (element: HTMLElement | HTMLAnchorElement, args: stri
 
 function onPaste(event: ClipboardEvent) {
   const transfer = event.clipboardData
+  // if there is no clipboard data, or
+  // if there is no html content in the clipboard, return
   if (!transfer || !hasHTML(transfer)) return
 
   const field = event.currentTarget
@@ -52,8 +54,10 @@ function transform(
   for (const element of elements) {
     const textContent = element.textContent || ''
     const {part, index} = trimAfter(text, textContent)
-    markdownParts.push(part.replace(textContent, transformer(element, args)))
-    text = text.slice(index)
+    if (index >= 0) {
+      markdownParts.push(part.replace(textContent, transformer(element, args)))
+      text = text.slice(index)
+    }
   }
   markdownParts.push(text)
   return markdownParts.join('')
