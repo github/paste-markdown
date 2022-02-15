@@ -12,7 +12,8 @@
       "rules": {
         "import/extensions": "off",
         "import/no-unresolved": "off",
-        "github/no-inner-html": "off"
+        "github/no-inner-html": "off",
+        "eslint-comments/no-use": "off"
       }
     }
   ]
