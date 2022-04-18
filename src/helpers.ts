@@ -31,3 +31,20 @@ export function insertText(textarea: HTMLInputElement | HTMLTextAreaElement, tex
     textarea.dispatchEvent(new CustomEvent('change', {bubbles: true, cancelable: true}))
   }
 }
+
+export function onCodeEditorPaste(event: any, callback: Function) {
+  event.clipboardData = event.detail.originalEvent.clipboardData
+  event.currentTarget.selectionStart = event.detail.selectionStart
+  event.currentTarget.selectionEnd = event.detail.selectionEnd
+  callback(event)
+}
+
+export function stopPropagation(event: ClipboardEvent | CustomEvent) {
+  event.stopPropagation()
+  event.preventDefault()
+  if (event.type === 'codeEditor:paste') {
+    const originalEvent = (event as CustomEvent).detail.originalEvent
+    originalEvent.stopPropagation()
+    originalEvent.preventDefault()
+  }
+}

@@ -1,11 +1,13 @@
-import {insertText} from './text'
+import {insertText, onCodeEditorPaste, stopPropagation} from './helpers'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('paste', onPaste)
+  el.addEventListener('codeEditor:paste', (event) => onCodeEditorPaste(event, onPaste))
 }
 
 export function uninstall(el: HTMLElement): void {
   el.removeEventListener('paste', onPaste)
+  el.removeEventListener('codeEditor:paste', (event) => onCodeEditorPaste(event, onPaste))
 }
 
 type MarkdownTransformer = (element: HTMLElement | HTMLAnchorElement, args: string[]) => string
@@ -39,8 +41,7 @@ function onPaste(event: ClipboardEvent) {
   // If no changes made by transforming
   if (markdown === text) return
 
-  event.stopPropagation()
-  event.preventDefault()
+  stopPropagation(event)
 
   insertText(field, markdown)
 }

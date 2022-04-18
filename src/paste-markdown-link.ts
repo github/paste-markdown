@@ -1,11 +1,13 @@
-import {insertText} from './text'
+import {insertText, onCodeEditorPaste, stopPropagation} from './helpers'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('paste', onPaste)
+  el.addEventListener('codeEditor:paste', (event) => onCodeEditorPaste(event, onPaste))
 }
 
 export function uninstall(el: HTMLElement): void {
   el.removeEventListener('paste', onPaste)
+  el.removeEventListener('codeEditor:paste', (event) => onCodeEditorPaste(event, onPaste))
 }
 
 function onPaste(event: ClipboardEvent) {
@@ -26,8 +28,7 @@ function onPaste(event: ClipboardEvent) {
   // Trim whitespace in case whitespace is selected by mistake or by intention
   if (isURL(selectedText.trim())) return
 
-  event.stopPropagation()
-  event.preventDefault()
+  stopPropagation(event)
 
   insertText(field, linkify(selectedText, text))
 }

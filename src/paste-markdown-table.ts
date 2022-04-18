@@ -1,15 +1,17 @@
-import {insertText} from './text'
+import {insertText, onCodeEditorPaste, stopPropagation} from './helpers'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('dragover', onDragover)
   el.addEventListener('drop', onDrop)
   el.addEventListener('paste', onPaste)
+  el.addEventListener('codeEditor:paste', (event) => onCodeEditorPaste(event, onPaste))
 }
 
 export function uninstall(el: HTMLElement): void {
   el.removeEventListener('dragover', onDragover)
   el.removeEventListener('drop', onDrop)
   el.removeEventListener('paste', onPaste)
+  el.removeEventListener('codeEditor:paste', (event) => onCodeEditorPaste(event, onPaste))
 }
 
 function onDrop(event: DragEvent) {
@@ -40,8 +42,7 @@ function onPaste(event: ClipboardEvent) {
   const textToPaste = generateText(event.clipboardData)
   if (!textToPaste) return
 
-  event.stopPropagation()
-  event.preventDefault()
+  stopPropagation(event)
 
   const field = event.currentTarget
   if (field instanceof HTMLTextAreaElement) {

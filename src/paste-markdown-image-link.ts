@@ -1,6 +1,6 @@
 /* @flow strict */
 
-import {insertText} from './text'
+import {insertText} from './helpers'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('dragover', onDragover)
