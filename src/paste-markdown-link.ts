@@ -1,13 +1,13 @@
-import {insertText, onCodeEditorPaste, stopPropagation} from './helpers'
+import {insertText, onCodeEditorPaste, stopPropagation, getSelectedText} from './helpers'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('paste', onPaste)
-  el.addEventListener('codeEditor:paste', (event) => onCodeEditorPaste(event, onPaste))
+  el.addEventListener('codeEditor:paste', event => onCodeEditorPaste(event, onPaste))
 }
 
 export function uninstall(el: HTMLElement): void {
   el.removeEventListener('paste', onPaste)
-  el.removeEventListener('codeEditor:paste', (event) => onCodeEditorPaste(event, onPaste))
+  el.removeEventListener('codeEditor:paste', event => onCodeEditorPaste(event, onPaste))
 }
 
 function onPaste(event: ClipboardEvent) {
@@ -22,7 +22,7 @@ function onPaste(event: ClipboardEvent) {
   if (!isURL(text)) return
   if (isWithinLink(field)) return
 
-  const selectedText = field.value.substring(field.selectionStart, field.selectionEnd)
+  const selectedText = getSelectedText(field, event)
   if (!selectedText.length) return
   // Prevent linkification when replacing an URL
   // Trim whitespace in case whitespace is selected by mistake or by intention
@@ -30,7 +30,7 @@ function onPaste(event: ClipboardEvent) {
 
   stopPropagation(event)
 
-  insertText(field, linkify(selectedText, text))
+  insertText(field, linkify(selectedText, text), event)
 }
 
 function hasPlainText(transfer: DataTransfer): boolean {

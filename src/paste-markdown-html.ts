@@ -2,12 +2,12 @@ import {insertText, onCodeEditorPaste, stopPropagation} from './helpers'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('paste', onPaste)
-  el.addEventListener('codeEditor:paste', (event) => onCodeEditorPaste(event, onPaste))
+  el.addEventListener('codeEditor:paste', event => onCodeEditorPaste(event, onPaste))
 }
 
 export function uninstall(el: HTMLElement): void {
   el.removeEventListener('paste', onPaste)
-  el.removeEventListener('codeEditor:paste', (event) => onCodeEditorPaste(event, onPaste))
+  el.removeEventListener('codeEditor:paste', event => onCodeEditorPaste(event, onPaste))
 }
 
 type MarkdownTransformer = (element: HTMLElement | HTMLAnchorElement, args: string[]) => string
@@ -43,7 +43,7 @@ function onPaste(event: ClipboardEvent) {
 
   stopPropagation(event)
 
-  insertText(field, markdown)
+  insertText(field, markdown, event)
 }
 
 // Build a markdown string from a DOM tree and plaintext
