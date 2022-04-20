@@ -8,8 +8,6 @@ export function uninstall(el: HTMLElement): void {
   el.removeEventListener('paste', onPaste)
 }
 
-type MarkdownTransformer = (element: HTMLElement | HTMLAnchorElement, args: string[]) => string
-
 function onPaste(event: ClipboardEvent) {
   const transfer = event.clipboardData
   // if there is no clipboard data, or
@@ -20,24 +18,24 @@ function onPaste(event: ClipboardEvent) {
   if (!(field instanceof HTMLTextAreaElement)) return
 
   // Get the plaintext and html version of clipboard contents
-  let text = transfer.getData('text/plain')
+  let plaintext = transfer.getData('text/plain')
   const textHTML = transfer.getData('text/html')
   // Replace Unicode equivalent of "&nbsp" with a space
-  const textHTMLClean = textHTML.replace(/\u00A0/g, ' ')
+  const textHTMLClean = textHTML.replace(/\u00A0/g, ' ').replace(/\uC2A0/g, ' ')
   if (!textHTML) return
 
-  text = text.trim()
-  if (!text) return
+  plaintext = plaintext.trim()
+  if (!plaintext) return
 
   // Generate DOM tree from HTML string
   const parser = new DOMParser()
   const doc = parser.parseFromString(textHTMLClean, 'text/html')
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT)
 
-  const a = doc.getElementsByTagName('a')
-  const markdown = transform(a, text, linkify as MarkdownTransformer)
+  const markdown = convertToMarkdown(plaintext, walker)
 
   // If no changes made by transforming
-  if (markdown === text) return
+  if (markdown === plaintext) return
 
   event.stopPropagation()
   event.preventDefault()
@@ -45,40 +43,55 @@ function onPaste(event: ClipboardEvent) {
   insertText(field, markdown)
 }
 
-// Build a markdown string from a DOM tree and plaintext
-function transform(
-  elements: HTMLCollectionOf<HTMLElement>,
-  text: string,
-  transformer: MarkdownTransformer,
-  ...args: string[]
-): string {
-  const markdownParts = []
-  for (const element of elements) {
-    const textContent = element.textContent || ''
-    const {part, index} = trimAfter(text, textContent)
-    if (index >= 0) {
-      markdownParts.push(part.replace(textContent, transformer(element, args)))
-      text = text.slice(index)
+function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
+  let currentNode = walker.firstChild() as HTMLAnchorElement | HTMLElement | null
+  let markdown = plaintext
+  let markdownIgnoreBeforeIndex = 0
+  let index = 0
+  const NODE_LIMIT = 100000
+
+  // Walk through the DOM tree
+  while (currentNode && index < NODE_LIMIT) {
+    index++
+    const text = isLink(currentNode)
+      ? (currentNode as HTMLAnchorElement).textContent || ''
+      : (currentNode.firstChild as Text)?.wholeText || ''
+
+    // No need to transform whitespace
+    if (isEmptyString(text)) {
+      currentNode = walker.nextNode() as HTMLAnchorElement | HTMLElement | null
+      continue
     }
+
+    // Find the index where "text" is found in "markdown" _after_ "markdownIgnoreBeforeIndex"
+    const markdownFoundIndex = markdown.indexOf(text, markdownIgnoreBeforeIndex)
+
+    if (markdownFoundIndex >= 0) {
+      if (isLink(currentNode)) {
+        const markdownLink = linkify(currentNode as HTMLAnchorElement)
+        // Transform 'example link plus more text' into 'example [link](example link) plus more text'
+        // Method: 'example [link](example link) plus more text' = 'example ' + '[link](example link)' + ' plus more text'
+        markdown =
+          markdown.slice(0, markdownFoundIndex) + markdownLink + markdown.slice(markdownFoundIndex + text.length)
+        markdownIgnoreBeforeIndex = markdownFoundIndex + markdownLink.length
+      } else {
+        markdownIgnoreBeforeIndex = markdownFoundIndex + text.length
+      }
+    }
+
+    currentNode = walker.nextNode() as HTMLAnchorElement | HTMLElement | null
   }
-  markdownParts.push(text)
-  return markdownParts.join('')
+
+  // Unless we hit the node limit, we should have processed all nodes
+  return index === NODE_LIMIT ? plaintext : markdown
 }
 
-// Trim text at index of last character of the first occurrence of "search" and
-// return a new string with the substring until the index
-//  Example: trimAfter('Hello world', 'world') => {part: 'Hello world', index: 11}
-//  Example: trimAfter('Hello world', 'bananas') => {part: '', index: -1}
-function trimAfter(text: string, search = ''): {part: string; index: number} {
-  let index = text.indexOf(search)
-  if (index === -1) return {part: '', index}
+function isEmptyString(text: string): boolean {
+  return !text || text?.trim().length === 0
+}
 
-  index += search.length
-
-  return {
-    part: text.substring(0, index),
-    index
-  }
+function isLink(node: HTMLElement): boolean {
+  return node.tagName.toLowerCase() === 'a' && node.hasAttribute('href')
 }
 
 function hasHTML(transfer: DataTransfer): boolean {
