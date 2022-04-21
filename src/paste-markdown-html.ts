@@ -90,7 +90,7 @@ function isEmptyString(text: string): boolean {
   return !text || text?.trim().length === 0
 }
 
-function isLink(node: HTMLElement): boolean {
+function isLink(node: HTMLElement): node is HTMLAnchorElement {
   return node.tagName.toLowerCase() === 'a' && node.hasAttribute('href')
 }
 
