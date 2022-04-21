@@ -44,7 +44,7 @@ function onPaste(event: ClipboardEvent) {
 }
 
 function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
-  let currentNode = walker.firstChild() as HTMLAnchorElement | HTMLElement | null
+  let currentNode = walker.firstChild()
   let markdown = plaintext
   let markdownIgnoreBeforeIndex = 0
   let index = 0
@@ -54,12 +54,12 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
   while (currentNode && index < NODE_LIMIT) {
     index++
     const text = isLink(currentNode)
-      ? (currentNode as HTMLAnchorElement).textContent || ''
+      ? currentNode.textContent || ''
       : (currentNode.firstChild as Text)?.wholeText || ''
 
     // No need to transform whitespace
     if (isEmptyString(text)) {
-      currentNode = walker.nextNode() as HTMLAnchorElement | HTMLElement | null
+      currentNode = walker.nextNode()
       continue
     }
 
@@ -68,7 +68,7 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
 
     if (markdownFoundIndex >= 0) {
       if (isLink(currentNode)) {
-        const markdownLink = linkify(currentNode as HTMLAnchorElement)
+        const markdownLink = linkify(currentNode)
         // Transform 'example link plus more text' into 'example [link](example link) plus more text'
         // Method: 'example [link](example link) plus more text' = 'example ' + '[link](example link)' + ' plus more text'
         markdown =
@@ -79,7 +79,7 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
       }
     }
 
-    currentNode = walker.nextNode() as HTMLAnchorElement | HTMLElement | null
+    currentNode = walker.nextNode()
   }
 
   // Unless we hit the node limit, we should have processed all nodes
@@ -90,8 +90,8 @@ function isEmptyString(text: string): boolean {
   return !text || text?.trim().length === 0
 }
 
-function isLink(node: HTMLElement): node is HTMLAnchorElement {
-  return node.tagName.toLowerCase() === 'a' && node.hasAttribute('href')
+function isLink(node: Node): node is HTMLAnchorElement {
+  return (node as HTMLElement).tagName?.toLowerCase() === 'a' && (node as HTMLElement).hasAttribute('href')
 }
 
 function hasHTML(transfer: DataTransfer): boolean {
