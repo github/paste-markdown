@@ -1,7 +1,7 @@
 import {insertText} from './text'
 
-export function install(el: HTMLElement): void {
-  el.addEventListener('paste', onPaste)
+export function install(el: HTMLElement, {signal}: {signal?: AbortSignal} = {}): void {
+  el.addEventListener('paste', onPaste, {signal})
 }
 
 export function uninstall(el: HTMLElement): void {
