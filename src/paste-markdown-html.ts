@@ -48,7 +48,7 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
   let markdown = plaintext
   let markdownIgnoreBeforeIndex = 0
   let index = 0
-  const NODE_LIMIT = 100000
+  const NODE_LIMIT = 10000
 
   // Walk through the DOM tree
   while (currentNode && index < NODE_LIMIT) {
