@@ -53,9 +53,7 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
   // Walk through the DOM tree
   while (currentNode && index < NODE_LIMIT) {
     index++
-    const text = isLink(currentNode)
-      ? currentNode.textContent || ''
-      : (currentNode.firstChild as Text)?.wholeText || ''
+    const text = isLink(currentNode) ? currentNode.textContent || '' : (currentNode.firstChild as Text)?.wholeText || ''
 
     // No need to transform whitespace
     if (isEmptyString(text)) {
