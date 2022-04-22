@@ -132,10 +132,10 @@ describe('paste-markdown', function () {
 
     it('turns mixed html content containing several links into appropriate markdown', function () {
       // eslint-disable-next-line github/unescaped-html-literal
-      const sentence = `<meta charset='utf-8'><meta charset="utf-8">
+      const sentence = `<meta charset='utf-8'>
         <b style="font-weight:normal;"><p dir="ltr"><span>This is a </span>
-        <a href="https://github.com/"><span>link</span></a><span> and </span>
-        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><span>another link</span></a></p>
+        <a href="https://github.com/">link</a><span> and </span>
+        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">another link</a></p>
         <br /><a href="https://github.com/"><span>Link</span></a><span> at the beginning, link at the </span>
         <a href="https://github.com/"><span>end</span></a></b>`
       // eslint-disable-next-line i18n-text/no-en
@@ -186,19 +186,29 @@ describe('paste-markdown', function () {
 
     it('leaves plaintext links alone', function () {
       // eslint-disable-next-line github/unescaped-html-literal
-      const sentence = `<meta charset='utf-8'><meta charset="utf-8">
+      const sentence = `<meta charset='utf-8'>
         <b style="font-weight:normal;"><p dir="ltr"><span>This is a </span>
-        <a href="https://github.com/"><span>https://github.com</span></a><span> and </span>
-        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><span>another link</span></a></p>
-        <br /><a href="https://github.com/"><span>Link</span></a><span> at the beginning, link at the </span>
-        <a href="https://github.com/"><span>https://github.com/</span></a></b>`
+        <a href="https://github.com/">link</a><span> and </span>
+        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">another link</a></p>
+        <br /><a href="https://github.com/">Link</a><span> at the beginning, link at the </span>
+        <a href="https://github.com/"><span>end</span></a></b>`
       /* eslint-disable i18n-text/no-en */
-      const plaintextSentence =
-        'This is a https://github.com and another link\n\nLink at the beginning, link at the https://github.com/'
+      const plaintextSentence = 'This is a link and another link\n\nLink at the beginning, link at the end'
       /* eslint-enable i18n-text/no-en */
       const markdownSentence =
-        'This is a https://github.com/ and [another link](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n\n' +
-        '[Link](https://github.com/) at the beginning, link at the https://github.com/'
+        'This is a [link](https://github.com/) and [another link](https://www.youtube.com/watch?v=dQw4w9WgXcQ)\n\n' +
+        '[Link](https://github.com/) at the beginning, link at the [end](https://github.com/)'
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
+
+    it('finds the right link when identical labels are present', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'><span>example<span> </span>
+      </span><a href="https://example.com/">example</a>`
+      const plaintextSentence = 'example example'
+      const markdownSentence = 'example [example](https://example.com/)'
 
       paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
       assert.equal(textarea.value, markdownSentence)
