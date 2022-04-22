@@ -1,16 +1,16 @@
-import {insertText, onCodeEditorPaste, stopPropagation} from './helpers'
+import {CodeMirrorPasteEvent, insertText, onCodeEditorPaste, stopPropagation} from './helpers'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('paste', onPaste)
-  el.addEventListener('codeEditor:paste', event => onCodeEditorPaste(event, onPaste))
+  el.addEventListener('codeEditor:paste', event => onCodeEditorPaste(event as CodeMirrorPasteEvent, onPaste))
 }
 
 export function uninstall(el: HTMLElement): void {
   el.removeEventListener('paste', onPaste)
-  el.removeEventListener('codeEditor:paste', event => onCodeEditorPaste(event, onPaste))
+  el.removeEventListener('codeEditor:paste', event => onCodeEditorPaste(event as CodeMirrorPasteEvent, onPaste))
 }
 
-function onPaste(event: ClipboardEvent) {
+function onPaste(event: ClipboardEvent | CodeMirrorPasteEvent): void {
   const transfer = event.clipboardData
   // if there is no clipboard data, or
   // if there is no html content in the clipboard, return

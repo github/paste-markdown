@@ -1,4 +1,4 @@
-import {insertText, onCodeEditorPaste, stopPropagation, getSelectedText} from './helpers'
+import {getSelectedText, insertText, onCodeEditorPaste, stopPropagation} from './helpers'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('paste', onPaste)

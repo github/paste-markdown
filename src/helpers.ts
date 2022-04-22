@@ -1,21 +1,21 @@
-interface CodeMirrorPasteEvent extends ClipboardEvent {
+import type {Doc} from 'codemirror'
+
+export interface CodeMirrorPasteEvent extends ClipboardEvent {
   detail: {
     originalEvent: ClipboardEvent
+    document: Doc
   }
-  document: {
-    replaceSelection: (text: string) => void
-    getSelection: () => string
-  }
-  selection: Object
+  document: Doc
+  selection: string
 }
 
 export function insertText(
   textarea: HTMLInputElement | HTMLTextAreaElement,
   text: string,
-  event?: ClipboardEvent | CustomEvent
+  event: ClipboardEvent | CodeMirrorPasteEvent
 ): void {
-  if (event?.type === 'codeEditor:paste') {
-    (event as CodeMirrorPasteEvent).document.replaceSelection(text)
+  if (isCodeEditorEvent(event)) {
+    event.document.replaceSelection(text)
     return
   }
   const before = textarea.value.slice(0, textarea.selectionStart ?? undefined)
@@ -51,30 +51,39 @@ export function insertText(
   }
 }
 
-export function onCodeEditorPaste(event: any, callback: (event: ClipboardEvent) => void): void {
-  event.clipboardData = event.detail.originalEvent.clipboardData
-  event.document = event.detail.document
-  event.selection = event.detail.document.getSelection()
-  callback(event)
+export function onCodeEditorPaste(
+  event: CodeMirrorPasteEvent,
+  callback: (event: CodeMirrorPasteEvent | ClipboardEvent) => void
+): void {
+  const syntheticEvent: CodeMirrorPasteEvent = {
+    ...event,
+    clipboardData: event.detail.originalEvent.clipboardData,
+    document: event.detail.document,
+    selection: event.detail.document.getSelection()
+  }
+  callback(syntheticEvent)
 }
 
 export function stopPropagation(event: ClipboardEvent | CodeMirrorPasteEvent): void {
   event.stopPropagation()
   event.preventDefault()
-  if (event.type === 'codeEditor:paste') {
+  if (isCodeEditorEvent(event)) {
     const originalEvent = (event as CodeMirrorPasteEvent).detail.originalEvent
     originalEvent.stopPropagation()
     originalEvent.preventDefault()
   }
 }
 
-export function getSelectedText(field: HTMLTextAreaElement, event: ClipboardEvent | CustomEvent) {
+export function getSelectedText(field: HTMLTextAreaElement, event: ClipboardEvent | CustomEvent): string {
   let selectedText = ''
-  if (event.type === 'codeEditor:paste') {
+  if (isCodeEditorEvent(event)) {
     selectedText = (event as CodeMirrorPasteEvent).document.getSelection()
-  }
-  else {
+  } else {
     selectedText = field.value.substring(field.selectionStart, field.selectionEnd)
   }
   return selectedText
+}
+
+function isCodeEditorEvent(event: ClipboardEvent | CustomEvent): event is CodeMirrorPasteEvent {
+  return event.type === 'codeEditor:paste'
 }
