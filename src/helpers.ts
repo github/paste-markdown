@@ -1,11 +1,14 @@
-import type {Doc} from 'codemirror'
+interface CodeMirrorDocument {
+  replaceSelection(text: string): void
+  getSelection(): string
+}
 
 export interface CodeMirrorPasteEvent extends ClipboardEvent {
   detail: {
     originalEvent: ClipboardEvent
-    document: Doc
+    document: CodeMirrorDocument
   }
-  document: Doc
+  document: CodeMirrorDocument
   selection: string
 }
 
