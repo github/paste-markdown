@@ -27,7 +27,7 @@ function onDrop(event: DragEvent) {
 
   const field = event.currentTarget
   if (field instanceof HTMLTextAreaElement) {
-    insertText(field, textToPaste)
+    insertText(field, textToPaste, event)
   }
 }
 

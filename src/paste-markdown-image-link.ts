@@ -29,7 +29,7 @@ function onDrop(event: DragEvent) {
 
   const field = event.currentTarget
   if (!(field instanceof HTMLTextAreaElement)) return
-  insertText(field, links.map(linkify).join(''))
+  insertText(field, links.map(linkify).join(''), event)
 }
 
 function onDragover(event: DragEvent) {
@@ -49,7 +49,7 @@ function onPaste(event: ClipboardEvent) {
 
   const field = event.currentTarget
   if (!(field instanceof HTMLTextAreaElement)) return
-  insertText(field, links.map(linkify).join(''))
+  insertText(field, links.map(linkify).join(''), event)
 }
 
 function linkify(link: string): string {
