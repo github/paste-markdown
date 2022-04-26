@@ -12,11 +12,7 @@ export interface CodeMirrorPasteEvent extends ClipboardEvent {
   selection: string
 }
 
-export function insertText(
-  textarea: HTMLInputElement | HTMLTextAreaElement,
-  text: string,
-  event: ClipboardEvent | CodeMirrorPasteEvent
-): void {
+export function insertText(textarea: HTMLInputElement | HTMLTextAreaElement, text: string, event: Event): void {
   if (isCodeEditorEvent(event)) {
     event.document.replaceSelection(text)
     return
@@ -87,6 +83,6 @@ export function getSelectedText(field: HTMLTextAreaElement, event: ClipboardEven
   return selectedText
 }
 
-function isCodeEditorEvent(event: ClipboardEvent | CustomEvent): event is CodeMirrorPasteEvent {
+function isCodeEditorEvent(event: Event): event is CodeMirrorPasteEvent {
   return event.type === 'codeEditor:paste'
 }
