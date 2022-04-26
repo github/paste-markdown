@@ -1,17 +1,17 @@
-import {insertText, onCodeEditorPaste, stopPropagation} from './helpers'
+import {CodeMirrorPasteEvent, insertText, onCodeEditorPaste, stopPropagation} from './helpers'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('dragover', onDragover)
   el.addEventListener('drop', onDrop)
   el.addEventListener('paste', onPaste)
-  el.addEventListener('codeEditor:paste', event => onCodeEditorPaste(event, onPaste))
+  el.addEventListener('codeEditor:paste', event => onCodeEditorPaste(event as CodeMirrorPasteEvent, onPaste))
 }
 
 export function uninstall(el: HTMLElement): void {
   el.removeEventListener('dragover', onDragover)
   el.removeEventListener('drop', onDrop)
   el.removeEventListener('paste', onPaste)
-  el.removeEventListener('codeEditor:paste', event => onCodeEditorPaste(event, onPaste))
+  el.removeEventListener('codeEditor:paste', event => onCodeEditorPaste(event as CodeMirrorPasteEvent, onPaste))
 }
 
 function onDrop(event: DragEvent) {
