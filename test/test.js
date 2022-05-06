@@ -148,6 +148,18 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, markdownSentence)
     })
 
+    it('deals with links with nested html', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<a href="https://example.com/"><span>foo</span></a>
+      <a href="https://example.com/">bar</a>
+      foo bar`
+      const plaintextSentence = 'foo bar foo bar'
+      const markdownSentence = '[foo](https://example.com/) [bar](https://example.com/) foo bar'
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
+
     it("doesn't render any markdown for html link without corresponding plaintext", function () {
       // eslint-disable-next-line github/unescaped-html-literal
       const link = `<meta charset='utf-8'><a href="https://github.com/monalisa/playground/issues/1">
