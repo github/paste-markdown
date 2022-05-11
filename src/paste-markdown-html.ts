@@ -1,20 +1,22 @@
-import {handleUnformatted, isUnformatted} from './handlers'
+import {Unformatted} from './handlers'
 import {insertText} from './text'
 
+const unformatted = new Unformatted()
+
 export function install(el: HTMLElement): void {
-  el.addEventListener('keydown', handleUnformatted)
+  el.addEventListener('keydown', unformatted.handleUnformatted)
   el.addEventListener('paste', onPaste)
 }
 
 export function uninstall(el: HTMLElement): void {
-  el.removeEventListener('keydown', handleUnformatted)
+  el.removeEventListener('keydown', unformatted.handleUnformatted)
   el.removeEventListener('paste', onPaste)
 }
 
 function onPaste(event: ClipboardEvent) {
   const transfer = event.clipboardData
   const {currentTarget: el} = event
-  if (isUnformatted(el as HTMLElement)) return
+  if (unformatted.isUnformatted(el as HTMLElement)) return
   // if there is no clipboard data, or
   // if there is no html content in the clipboard, return
   if (!transfer || !hasHTML(transfer)) return

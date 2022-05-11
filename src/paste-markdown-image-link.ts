@@ -1,16 +1,18 @@
 /* @flow strict */
-import {handleUnformatted, isUnformatted} from './handlers'
+import {Unformatted} from './handlers'
 import {insertText} from './text'
 
+const unformatted = new Unformatted()
+
 export function install(el: HTMLElement): void {
-  el.addEventListener('keydown', handleUnformatted)
+  el.addEventListener('keydown', unformatted.handleUnformatted)
   el.addEventListener('dragover', onDragover)
   el.addEventListener('drop', onDrop)
   el.addEventListener('paste', onPaste)
 }
 
 export function uninstall(el: HTMLElement): void {
-  el.removeEventListener('keydown', handleUnformatted)
+  el.removeEventListener('keydown', unformatted.handleUnformatted)
   el.removeEventListener('dragover', onDragover)
   el.removeEventListener('drop', onDrop)
   el.removeEventListener('paste', onPaste)
@@ -41,7 +43,7 @@ function onDragover(event: DragEvent) {
 
 function onPaste(event: ClipboardEvent) {
   const {currentTarget: el} = event
-  if (isUnformatted(el as HTMLElement)) return
+  if (unformatted.isUnformatted(el as HTMLElement)) return
 
   const transfer = event.clipboardData
   if (!transfer || !hasLink(transfer)) return

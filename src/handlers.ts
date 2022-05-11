@@ -1,15 +1,24 @@
-const unformatted = new WeakMap<HTMLElement, boolean>()
+type UMap = WeakMap<HTMLElement, boolean>
+export class Unformatted {
+  map: UMap
 
-export function handleUnformatted(event: KeyboardEvent): void {
-  const {currentTarget: el} = event
-  if (event.code === 'KeyV' && (event.ctrlKey || event.metaKey) && event.shiftKey) {
-    unformatted.set(el as HTMLElement, true)
+  constructor() {
+    this.map = new WeakMap()
+    this.handleUnformatted = this.handleUnformatted.bind(this)
+    this.isUnformatted = this.isUnformatted.bind(this)
   }
-}
 
-export function isUnformatted(el: HTMLElement): boolean {
-  const isUnformattedState = unformatted.get(el) ?? false
-  unformatted.delete(el)
+  handleUnformatted(event: KeyboardEvent): void {
+    const {currentTarget: el} = event
+    if (event.code === 'KeyV' && (event.ctrlKey || event.metaKey) && event.shiftKey) {
+      this.map.set(el as HTMLElement, true)
+    }
+  }
 
-  return isUnformattedState
+  isUnformatted(el: HTMLElement): boolean {
+    const isUnformattedState = this.map.get(el) ?? false
+    this.map.delete(el)
+
+    return isUnformattedState
+  }
 }
