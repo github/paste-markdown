@@ -1,13 +1,11 @@
-import {handleUnformatted, isUnformatted} from './handlers'
 import {insertText} from './text'
+import {isUnformatted} from './handlers'
 
 export function install(el: HTMLElement): void {
-  el.addEventListener('keydown', handleUnformatted)
   el.addEventListener('paste', onPaste)
 }
 
 export function uninstall(el: HTMLElement): void {
-  el.removeEventListener('keydown', handleUnformatted)
   el.removeEventListener('paste', onPaste)
 }
 

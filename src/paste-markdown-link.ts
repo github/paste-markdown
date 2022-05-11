@@ -1,18 +1,18 @@
-import {handleUnformatted, isUnformatted} from './handlers'
 import {insertText} from './text'
+import {isUnformatted} from './handlers'
 
 export function install(el: HTMLElement): void {
-  el.addEventListener('keydown', handleUnformatted)
   el.addEventListener('paste', onPaste)
 }
 
 export function uninstall(el: HTMLElement): void {
-  el.removeEventListener('keydown', handleUnformatted)
   el.removeEventListener('paste', onPaste)
 }
 
 function onPaste(event: ClipboardEvent) {
   const {currentTarget: el} = event
+  // eslint-disable-next-line no-console
+  console.log('💜', 'onPaste', isUnformatted(el as HTMLElement))
   if (isUnformatted(el as HTMLElement)) return
 
   const transfer = event.clipboardData
