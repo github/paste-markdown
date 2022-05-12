@@ -5,14 +5,14 @@ import {insertText} from './text'
 const pasteKeyBoardShortcut = new PasteKeyBoardShortcut()
 
 export function install(el: HTMLElement): void {
-  el.addEventListener('keydown', pasteKeyBoardShortcut.handleUnformatted)
+  el.addEventListener('keydown', pasteKeyBoardShortcut.handleSkipFormatting)
   el.addEventListener('dragover', onDragover)
   el.addEventListener('drop', onDrop)
   el.addEventListener('paste', onPaste)
 }
 
 export function uninstall(el: HTMLElement): void {
-  el.removeEventListener('keydown', pasteKeyBoardShortcut.handleUnformatted)
+  el.removeEventListener('keydown', pasteKeyBoardShortcut.handleSkipFormatting)
   el.removeEventListener('dragover', onDragover)
   el.removeEventListener('drop', onDrop)
   el.removeEventListener('paste', onPaste)
@@ -43,7 +43,7 @@ function onDragover(event: DragEvent) {
 
 function onPaste(event: ClipboardEvent) {
   const {currentTarget: el} = event
-  if (pasteKeyBoardShortcut.isUnformatted(el as HTMLElement)) return
+  if (pasteKeyBoardShortcut.shouldSkipFormatting(el as HTMLElement)) return
 
   const transfer = event.clipboardData
   if (!transfer || !hasLink(transfer)) return

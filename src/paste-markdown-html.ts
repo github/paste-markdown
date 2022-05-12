@@ -4,19 +4,19 @@ import {insertText} from './text'
 const pasteKeyBoardShortcut = new PasteKeyBoardShortcut()
 
 export function install(el: HTMLElement): void {
-  el.addEventListener('keydown', pasteKeyBoardShortcut.handleUnformatted)
+  el.addEventListener('keydown', pasteKeyBoardShortcut.handleSkipFormatting)
   el.addEventListener('paste', onPaste)
 }
 
 export function uninstall(el: HTMLElement): void {
-  el.removeEventListener('keydown', pasteKeyBoardShortcut.handleUnformatted)
+  el.removeEventListener('keydown', pasteKeyBoardShortcut.handleSkipFormatting)
   el.removeEventListener('paste', onPaste)
 }
 
 function onPaste(event: ClipboardEvent) {
   const transfer = event.clipboardData
   const {currentTarget: el} = event
-  if (pasteKeyBoardShortcut.isUnformatted(el as HTMLElement)) return
+  if (pasteKeyBoardShortcut.shouldSkipFormatting(el as HTMLElement)) return
   // if there is no clipboard data, or
   // if there is no html content in the clipboard, return
   if (!transfer || !hasHTML(transfer)) return

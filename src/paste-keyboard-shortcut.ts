@@ -4,18 +4,20 @@ export class PasteKeyBoardShortcut {
 
   constructor() {
     this.map = new WeakMap()
-    this.handleUnformatted = this.handleUnformatted.bind(this)
-    this.isUnformatted = this.isUnformatted.bind(this)
+    this.handleSkipFormatting = this.handleSkipFormatting.bind(this)
+    this.shouldSkipFormatting = this.shouldSkipFormatting.bind(this)
   }
 
-  handleUnformatted(event: KeyboardEvent): void {
+  handleSkipFormatting(event: KeyboardEvent): void {
     const {currentTarget: el} = event
-    if (event.code === 'KeyV' && (event.ctrlKey || event.metaKey) && event.shiftKey) {
+    const isSkipFormattingKeys = event.code === 'KeyV' && (event.ctrlKey || event.metaKey) && event.shiftKey
+
+    if (isSkipFormattingKeys || (isSkipFormattingKeys && event.altKey)) {
       this.map.set(el as HTMLElement, true)
     }
   }
 
-  isUnformatted(el: HTMLElement): boolean {
+  shouldSkipFormatting(el: HTMLElement): boolean {
     const isUnformattedState = this.map.get(el) ?? false
     this.map.delete(el)
 
