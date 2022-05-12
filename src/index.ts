@@ -7,7 +7,7 @@ import {
   installBefore as installUnformatted,
   installAfter as installUnformattedAfter,
   uninstall as uninstallUnformatted
-} from './handlers'
+} from './paste-keyboard-shortcut-helper'
 
 interface Subscription {
   unsubscribe: () => void

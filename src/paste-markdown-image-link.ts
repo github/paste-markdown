@@ -1,6 +1,6 @@
 /* @flow strict */
 import {insertText} from './text'
-import {isUnformatted} from './handlers'
+import {isUnformatted} from './paste-keyboard-shortcut-helper'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('dragover', onDragover)

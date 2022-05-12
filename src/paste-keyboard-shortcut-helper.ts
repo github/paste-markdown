@@ -9,8 +9,6 @@ function setUnformattedFlag(event: KeyboardEvent): void {
 
 function unsetUnformattedFlag(event: ClipboardEvent): void {
   const {currentTarget: el} = event
-  // eslint-disable-next-line no-console
-  console.log('💜', 'installUnsetUnformattedFlag', unformatted.get(el as HTMLElement))
   unformatted.delete(el as HTMLElement)
 }
 

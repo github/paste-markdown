@@ -1,5 +1,5 @@
 import {insertText} from './text'
-import {isUnformatted} from './handlers'
+import {isUnformatted} from './paste-keyboard-shortcut-helper'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('paste', onPaste)
@@ -11,8 +11,6 @@ export function uninstall(el: HTMLElement): void {
 
 function onPaste(event: ClipboardEvent) {
   const {currentTarget: el} = event
-  // eslint-disable-next-line no-console
-  console.log('💜', 'onPaste', isUnformatted(el as HTMLElement))
   if (isUnformatted(el as HTMLElement)) return
 
   const transfer = event.clipboardData
