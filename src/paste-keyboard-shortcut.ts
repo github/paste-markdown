@@ -11,7 +11,7 @@ export class PasteKeyBoardShortcut {
   handleSkipFormatting(event: KeyboardEvent): void {
     const {currentTarget: el} = event
     const isSkipFormattingKeys = event.code === 'KeyV' && (event.ctrlKey || event.metaKey) && event.shiftKey
-
+    // Supports Cmd+Shift+V (Chrome) / Cmd+Shift+Opt+V (Safari, Firefox and Edge) to mimic paste and match style shortcut on MacOS.
     if (isSkipFormattingKeys || (isSkipFormattingKeys && event.altKey)) {
       this.map.set(el as HTMLElement, true)
     }
