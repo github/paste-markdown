@@ -1,5 +1,5 @@
 type UMap = WeakMap<HTMLElement, boolean>
-export class Unformatted {
+export class PasteKeyBoardShortcut {
   map: UMap
 
   constructor() {

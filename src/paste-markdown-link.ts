@@ -1,21 +1,21 @@
-import {Unformatted} from './handlers'
+import {PasteKeyBoardShortcut} from './paste-keyboard-shortcut'
 import {insertText} from './text'
 
-const unformatted = new Unformatted()
+const pasteKeyBoardShortcut = new PasteKeyBoardShortcut()
 
 export function install(el: HTMLElement): void {
-  el.addEventListener('keydown', unformatted.handleUnformatted)
+  el.addEventListener('keydown', pasteKeyBoardShortcut.handleUnformatted)
   el.addEventListener('paste', onPaste)
 }
 
 export function uninstall(el: HTMLElement): void {
-  el.removeEventListener('keydown', unformatted.handleUnformatted)
+  el.removeEventListener('keydown', pasteKeyBoardShortcut.handleUnformatted)
   el.removeEventListener('paste', onPaste)
 }
 
 function onPaste(event: ClipboardEvent) {
   const {currentTarget: el} = event
-  if (unformatted.isUnformatted(el as HTMLElement)) return
+  if (pasteKeyBoardShortcut.isUnformatted(el as HTMLElement)) return
 
   const transfer = event.clipboardData
   if (!transfer || !hasPlainText(transfer)) return
