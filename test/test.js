@@ -128,6 +128,17 @@ describe('paste-markdown', function () {
       assert.include(textarea.value, '# hello')
     })
 
+    it('turns one html link into a markdown link', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const link = `<meta charset='utf-8'><meta charset="utf-8">
+        <b><a href="https://github.com/" style="text-decoration:none;"><span>link</span></a></b>`
+      const plaintextLink = 'link'
+      const markdownLink = '[link](https://github.com/)'
+
+      paste(textarea, {'text/html': link, 'text/plain': plaintextLink})
+      assert.equal(textarea.value, markdownLink)
+    })
+
     it('turns mixed html content containing several links into appropriate markdown', function () {
       // eslint-disable-next-line github/unescaped-html-literal
       const sentence = `<meta charset='utf-8'>
@@ -214,17 +225,6 @@ describe('paste-markdown', function () {
   })
 })
 
-function paste(textarea, data) {
-  const dataTransfer = new DataTransfer()
-  for (const key in data) {
-    dataTransfer.setData(key, data[key])
-  }
-  const event = new ClipboardEvent('paste', {
-    clipboardData: dataTransfer
-  })
-  textarea.dispatchEvent(event)
-}
-
 function skipFormatting(textarea) {
   textarea.dispatchEvent(
     new KeyboardEvent('keydown', {
@@ -235,6 +235,17 @@ function skipFormatting(textarea) {
       metaKey: true
     })
   )
+}
+
+function paste(textarea, data) {
+  const dataTransfer = new DataTransfer()
+  for (const key in data) {
+    dataTransfer.setData(key, data[key])
+  }
+  const event = new ClipboardEvent('paste', {
+    clipboardData: dataTransfer
+  })
+  textarea.dispatchEvent(event)
 }
 
 function wait(ms) {
