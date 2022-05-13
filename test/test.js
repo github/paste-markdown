@@ -31,6 +31,15 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
     })
 
+    it('does not turn pasted urls on selected text into markdown links if skip formatting', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here.'
+      textarea.addEventListener('keydown', skipFormatting(textarea))
+      textarea.setSelectionRange(26, 30)
+      paste(textarea, {'text/plain': 'https://github.com'})
+      assert.equal(textarea.value, 'The examples can be found here.')
+    })
+
     it("doesn't paste a markdown URL when pasting over a selected URL", function () {
       // eslint-disable-next-line i18n-text/no-en
       textarea.value = 'The examples can be found here: https://docs.github.com'
@@ -117,17 +126,6 @@ describe('paste-markdown', function () {
     it('accepts x-gfm', function () {
       paste(textarea, {'text/plain': 'hello', 'text/x-gfm': '# hello'})
       assert.include(textarea.value, '# hello')
-    })
-
-    it('turns one html link into a markdown link', function () {
-      // eslint-disable-next-line github/unescaped-html-literal
-      const link = `<meta charset='utf-8'><meta charset="utf-8">
-        <b><a href="https://github.com/" style="text-decoration:none;"><span>link</span></a></b>`
-      const plaintextLink = 'link'
-      const markdownLink = '[link](https://github.com/)'
-
-      paste(textarea, {'text/html': link, 'text/plain': plaintextLink})
-      assert.equal(textarea.value, markdownLink)
     })
 
     it('turns mixed html content containing several links into appropriate markdown', function () {
@@ -225,6 +223,18 @@ function paste(textarea, data) {
     clipboardData: dataTransfer
   })
   textarea.dispatchEvent(event)
+}
+
+function skipFormatting(textarea) {
+  textarea.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key: 'v',
+      code: 'KeyV',
+      shiftKey: true,
+      ctrlKey: true,
+      metaKey: true
+    })
+  )
 }
 
 function wait(ms) {
