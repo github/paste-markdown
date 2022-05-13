@@ -21,11 +21,13 @@ export function shouldSkipformatting(el: HTMLElement): boolean {
   return shouldSkipformattingState
 }
 
-export function installBefore(el: HTMLElement): void {
+export function installAround(el: HTMLElement, ...installCallbacks: Array<(el: HTMLElement) => void>): void {
   el.addEventListener('keydown', setSkipFormattingFlag)
-}
 
-export function installAfter(el: HTMLElement): void {
+  for (const installCallback of installCallbacks) {
+    installCallback(el)
+  }
+
   el.addEventListener('paste', unsetSkipFormattedFlag)
 }
 
