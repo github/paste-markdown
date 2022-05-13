@@ -1,4 +1,4 @@
-const skipformattingMap = new WeakMap<HTMLElement, boolean>()
+const skipFormattingMap = new WeakMap<HTMLElement, boolean>()
 
 function setSkipFormattingFlag(event: KeyboardEvent): void {
   const {currentTarget: el} = event
@@ -6,19 +6,19 @@ function setSkipFormattingFlag(event: KeyboardEvent): void {
 
   // Supports Cmd+Shift+V (Chrome) / Cmd+Shift+Opt+V (Safari, Firefox and Edge) to mimic paste and match style shortcut on MacOS.
   if (isSkipFormattingKeys || (isSkipFormattingKeys && event.altKey)) {
-    skipformattingMap.set(el as HTMLElement, true)
+    skipFormattingMap.set(el as HTMLElement, true)
   }
 }
 
 function unsetSkipFormattedFlag(event: ClipboardEvent): void {
   const {currentTarget: el} = event
-  skipformattingMap.delete(el as HTMLElement)
+  skipFormattingMap.delete(el as HTMLElement)
 }
 
-export function shouldSkipformatting(el: HTMLElement): boolean {
-  const shouldSkipformattingState = skipformattingMap.get(el) ?? false
+export function shouldSkipFormatting(el: HTMLElement): boolean {
+  const shouldSkipFormattingState = skipFormattingMap.get(el) ?? false
 
-  return shouldSkipformattingState
+  return shouldSkipFormattingState
 }
 
 export function installAround(el: HTMLElement, ...installCallbacks: Array<(el: HTMLElement) => void>): void {

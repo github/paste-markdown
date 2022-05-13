@@ -1,5 +1,5 @@
 import {insertText} from './text'
-import {shouldSkipformatting} from './paste-keyboard-shortcut-helper'
+import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('paste', onPaste)
@@ -11,7 +11,7 @@ export function uninstall(el: HTMLElement): void {
 
 function onPaste(event: ClipboardEvent) {
   const {currentTarget: el} = event
-  if (shouldSkipformatting(el as HTMLElement)) return
+  if (shouldSkipFormatting(el as HTMLElement)) return
 
   const transfer = event.clipboardData
   if (!transfer || !hasPlainText(transfer)) return
