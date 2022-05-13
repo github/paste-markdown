@@ -31,15 +31,6 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
     })
 
-    it('does not turn pasted urls on selected text into markdown links if skip formatting', function () {
-      // eslint-disable-next-line i18n-text/no-en
-      textarea.value = 'The examples can be found here.'
-      textarea.addEventListener('keydown', skipFormatting(textarea))
-      textarea.setSelectionRange(26, 30)
-      paste(textarea, {'text/plain': 'https://github.com'})
-      assert.equal(textarea.value, 'The examples can be found here.')
-    })
-
     it("doesn't paste a markdown URL when pasting over a selected URL", function () {
       // eslint-disable-next-line i18n-text/no-en
       textarea.value = 'The examples can be found here: https://docs.github.com'
@@ -222,10 +213,30 @@ describe('paste-markdown', function () {
       paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
       assert.equal(textarea.value, markdownSentence)
     })
+
+    // Note: It's possible to construct and dispatch a synthetic paste event,
+    // but this will not affect the document's contents in tests to assert it.
+    // So for that reason assert result on keydown (Ctrl+Shift+v) will be empty '' here.
+    it('when dispatch keydown event (Ctrl+Shift+v) to skip formatting', function () {
+      const data = {
+        'text/html': `
+        <table data-paste-markdown-skip>
+          <thead><tr><th>name</th><th>origin</th></tr></thead>
+          <tbody>
+            <tr><td>hubot</td><td>github</td></tr>
+            <tr><td>bender</td><td>futurama</td></tr>
+          </tbody>
+        </table>
+        `
+      }
+      textarea.addEventListener('keydown', dispatchSkipFormattingKeyEvent(textarea))
+      paste(textarea, data)
+      assert.equal(textarea.value, '')
+    })
   })
 })
 
-function skipFormatting(textarea) {
+function dispatchSkipFormattingKeyEvent(textarea) {
   textarea.dispatchEvent(
     new KeyboardEvent('keydown', {
       key: 'v',
