@@ -216,6 +216,7 @@ describe('paste-markdown', function () {
 
     // Note: It's possible to construct and dispatch a synthetic paste event,
     // but this will not affect the document's contents in tests to assert it.
+    // https://developer.mozilla.org/en-US/docs/Web/API/Element/paste_event
     // So for that reason assert result on keydown (Ctrl+Shift+v) will be empty '' here.
     it('when dispatch keydown event (Ctrl+Shift+v) to skip formatting', function () {
       const data = {
