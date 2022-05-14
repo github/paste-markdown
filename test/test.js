@@ -226,7 +226,7 @@ describe('paste-markdown', function () {
         </table>
         `
       }
-      textarea.addEventListener('keydown', dispatchSkipFormattingKeyEvent(textarea))
+      dispatchSkipFormattingKeyEvent(textarea)
       paste(textarea, data)
       assertUnformattedPaste(textarea)
     })
