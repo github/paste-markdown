@@ -214,10 +214,6 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, markdownSentence)
     })
 
-    // Note: It's possible to construct and dispatch a synthetic paste event,
-    // but this will not affect the document's contents in tests to assert it.
-    // https://developer.mozilla.org/en-US/docs/Web/API/Element/paste_event
-    // So for that reason assert result on keydown (Ctrl+Shift+v) will be empty '' here.
     it('when dispatch keydown event (Ctrl+Shift+v) to skip formatting', function () {
       const data = {
         'text/html': `
@@ -232,10 +228,20 @@ describe('paste-markdown', function () {
       }
       textarea.addEventListener('keydown', dispatchSkipFormattingKeyEvent(textarea))
       paste(textarea, data)
-      assert.equal(textarea.value, '')
+      assertUnformattedPaste(textarea)
     })
   })
 })
+
+/**
+ * Note: It's possible to construct and dispatch a synthetic paste event,
+ * but this will not affect the document's contents in tests to assert it.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Element/paste_event
+ * So for that reason assert result on keydown (Ctrl+Shift+v) will be empty '' here.
+ */
+function assertUnformattedPaste(textarea) {
+  return assert.equal(textarea.value, '')
+}
 
 function dispatchSkipFormattingKeyEvent(textarea) {
   textarea.dispatchEvent(
