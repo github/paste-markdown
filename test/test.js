@@ -1,5 +1,17 @@
 import {subscribe} from '../dist/index.esm.js'
 
+const tableHtml = `
+  <table>
+    <thead><tr><th>name</th><th>origin</th></tr></thead>
+    <tbody>
+      <tr><td>hubot</td><td>github</td></tr>
+      <tr><td>bender</td><td>futurama</td></tr>
+    </tbody>
+  </table>
+`
+
+const tableMarkdown = 'name | origin\n-- | --\nhubot | github\nbender | futurama'
+
 describe('paste-markdown', function () {
   describe('installed on textarea', function () {
     let subscription
@@ -43,18 +55,10 @@ describe('paste-markdown', function () {
 
     it('turns html tables into markdown', function () {
       const data = {
-        'text/html': `
-        <table>
-          <thead><tr><th>name</th><th>origin</th></tr></thead>
-          <tbody>
-            <tr><td>hubot</td><td>github</td></tr>
-            <tr><td>bender</td><td>futurama</td></tr>
-          </tbody>
-        </table>
-        `
+        'text/html': tableHtml
       }
       paste(textarea, data)
-      assert.include(textarea.value, 'name | origin\n-- | --\nhubot | github\nbender | futurama')
+      assert.include(textarea.value, tableMarkdown)
     })
 
     it("doesn't execute JavaScript", async function () {
@@ -76,13 +80,7 @@ describe('paste-markdown', function () {
       const data = {
         'text/html': `
         <p>Here is a cool table</p>
-        <table>
-          <thead><tr><th>name</th><th>origin</th></tr></thead>
-          <tbody>
-            <tr><td>hubot</td><td>github</td></tr>
-            <tr><td>bender</td><td>futurama</td></tr>
-          </tbody>
-        </table>
+        ${tableHtml}
         <p>Very cool</p>
         `
       }
@@ -91,7 +89,7 @@ describe('paste-markdown', function () {
       assert.equal(
         textarea.value.trim(),
         // eslint-disable-next-line github/unescaped-html-literal
-        '<p>Here is a cool table</p>\n        \n\nname | origin\n-- | --\nhubot | github\nbender | futurama\n\n\n        <p>Very cool</p>'
+        `<p>Here is a cool table</p>\n        \n  \n\n${tableMarkdown}\n\n\n\n        <p>Very cool</p>`
       )
     })
 
@@ -111,7 +109,7 @@ describe('paste-markdown', function () {
 
       // Synthetic paste events don't manipulate the DOM. A empty textarea
       // means that the event handler didn't fire and normal paste happened.
-      assert.equal(textarea.value, '')
+      assertUnformattedPaste(textarea)
     })
 
     it('accepts x-gfm', function () {
@@ -213,8 +211,44 @@ describe('paste-markdown', function () {
       paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
       assert.equal(textarea.value, markdownSentence)
     })
+
+    it('skip markdown formatting with (Ctrl+Shift+v)', function () {
+      const data = {
+        'text/html': tableHtml
+      }
+
+      dispatchSkipFormattingKeyEvent(textarea)
+      paste(textarea, data)
+      assertUnformattedPaste(textarea)
+
+      textarea.value = ''
+      paste(textarea, data)
+      assert.include(textarea.value, tableMarkdown)
+    })
   })
 })
+
+/**
+ * Note: It's possible to construct and dispatch a synthetic paste event,
+ * but this will not affect the document's contents in tests to assert it.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Element/paste_event
+ * So for that reason assert result on keydown (Ctrl+Shift+v) will be empty '' here.
+ */
+function assertUnformattedPaste(textarea) {
+  return assert.equal(textarea.value, '')
+}
+
+function dispatchSkipFormattingKeyEvent(textarea) {
+  textarea.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key: 'v',
+      code: 'KeyV',
+      shiftKey: true,
+      ctrlKey: true,
+      metaKey: true
+    })
+  )
+}
 
 function paste(textarea, data) {
   const dataTransfer = new DataTransfer()

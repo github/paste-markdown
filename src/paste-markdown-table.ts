@@ -1,4 +1,5 @@
 import {insertText} from './text'
+import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('dragover', onDragover)
@@ -35,6 +36,9 @@ function onDragover(event: DragEvent) {
 }
 
 function onPaste(event: ClipboardEvent) {
+  const {currentTarget: el} = event
+  if (shouldSkipFormatting(el as HTMLElement)) return
+
   if (!event.clipboardData) return
 
   const textToPaste = generateText(event.clipboardData)

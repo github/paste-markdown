@@ -1,61 +1,72 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>paste-markdown demo</title>
-  <style>
-    img, textarea { display: block; }
-    img, table, textarea { margin: 1em 0; }
-  </style>
-</head>
-<body>
-  <p>Test by selecting the elements and then either copy/paste or drag them into the textarea.</p>
-  <table border="1" cellpadding="5">
-    <thead>
-      <tr>
-        <th>name</th>
-        <th>origin</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>hubot</td>
-        <td>github</td>
-      </tr>
-      <tr>
-        <td>bender</td>
-        <td>futurama</td>
-      </tr>
-    </tbody>
-  </table>
+  <head>
+    <meta charset="utf-8" />
+    <title>paste-markdown demo</title>
+    <style>
+      img,
+      textarea {
+        display: block;
+      }
+      img,
+      table,
+      textarea {
+        margin: 1em 0;
+      }
+    </style>
+  </head>
+  <body>
+    <p>Test by selecting the elements and then either copy/paste or drag them into the textarea.</p>
+    <table border="1" cellpadding="5">
+      <thead>
+        <tr>
+          <th>name</th>
+          <th>origin</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>hubot</td>
+          <td>github</td>
+        </tr>
+        <tr>
+          <td>bender</td>
+          <td>futurama</td>
+        </tr>
+      </tbody>
+    </table>
 
-  <table border="1" cellpadding="5" data-paste-markdown-skip>
-    <thead>
-      <tr>
-        <th>name</th>
-        <th>origin</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>this table will not be</td>
-        <td>converted to markdown</td>
-      </tr>
-    </tbody>
-  </table>
+    <table border="1" cellpadding="5" data-paste-markdown-skip>
+      <thead>
+        <tr>
+          <th>name</th>
+          <th>origin</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>this table will not be</td>
+          <td>converted to markdown</td>
+        </tr>
+      </tbody>
+    </table>
 
-  <img src="https://github.com/hubot.png" width="100" alt="hubot">
+    <img src="https://github.com/hubot.png" width="100" alt="hubot" />
 
-  <p>Test by copying this page's URL and then selecting <i>here</i> in the textarea and pasting the URL.</p>
+    <p>Test by copying this page's URL and then selecting <i>here</i> in the textarea and pasting the URL.</p>
 
-  <p>Or copy and paste a <a href="https://github.com">link</a> and <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">another link</a> and maybe <a href="https://google.com">one more</a> into the textarea.</p>
+    <p>
+      Or copy and paste a <a href="https://github.com">link</a> and
+      <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">another link</a> and maybe
+      <a href="https://google.com">one more</a> into the textarea.
+    </p>
 
-  <textarea cols="50" rows="10">The examples can be found here.</textarea>
+    <textarea cols="50" rows="10">The examples can be found here.</textarea>
 
-  <script type="module">
-    // import {subscribe} from '../dist/index.esm.js'
-    import {subscribe} from 'https://unpkg.com/@github/paste-markdown/dist/index.esm.js'
-    subscribe(document.querySelector('textarea'))
-  </script>
-</body>
+    <script type="module">
+      import {subscribe} from '../dist/index.esm.js'
+      // import {subscribe} from 'https://unpkg.com/@github/paste-markdown/dist/index.esm.js'
+      subscribe(document.querySelector('textarea'))
+    </script>
+  </body>
 </html>
