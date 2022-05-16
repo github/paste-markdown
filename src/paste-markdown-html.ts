@@ -33,7 +33,9 @@ function onPaste(event: ClipboardEvent) {
   // Generate DOM tree from HTML string
   const parser = new DOMParser()
   const doc = parser.parseFromString(textHTMLClean, 'text/html')
-  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT)
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, node =>
+    node.parentNode && isLink(node.parentNode) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+  )
 
   const markdown = convertToMarkdown(plaintext, walker)
 
@@ -56,7 +58,9 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
   // Walk through the DOM tree
   while (currentNode && index < NODE_LIMIT) {
     index++
-    const text = isLink(currentNode) ? currentNode.textContent || '' : (currentNode.firstChild as Text)?.wholeText || ''
+    const text = isLink(currentNode)
+      ? (currentNode.textContent || '').replace(/[\t\n\r ]+/g, ' ')
+      : (currentNode.firstChild as Text)?.wholeText || ''
 
     // No need to transform whitespace
     if (isEmptyString(text)) {
@@ -69,7 +73,7 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
 
     if (markdownFoundIndex >= 0) {
       if (isLink(currentNode)) {
-        const markdownLink = linkify(currentNode)
+        const markdownLink = linkify(currentNode, text)
         // Transform 'example link plus more text' into 'example [link](example link) plus more text'
         // Method: 'example [link](example link) plus more text' = 'example ' + '[link](example link)' + ' plus more text'
         markdown =
@@ -100,8 +104,7 @@ function hasHTML(transfer: DataTransfer): boolean {
 }
 
 // Makes markdown link from a link element, avoiding special GitHub links
-function linkify(element: HTMLAnchorElement): string {
-  const label = element.textContent || ''
+function linkify(element: HTMLAnchorElement, label: string): string {
   const url = element.href || ''
   let markdown = ''
 
