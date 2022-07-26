@@ -97,13 +97,12 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
 
 function isWithinUserMention(textarea: HTMLTextAreaElement): boolean {
   const selectionStart = textarea.selectionStart || 0
-
-  if (selectionStart > 0) {
-    const previousChar = textarea.value.substring(selectionStart - 1, selectionStart)
-    return previousChar === '@'
-  } else {
+  if (selectionStart === 0) {
     return false
   }
+
+  const previousChar = textarea.value.substring(selectionStart - 1, selectionStart)
+  return previousChar === '@'
 }
 
 function isEmptyString(text: string): boolean {
