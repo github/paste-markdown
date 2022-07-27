@@ -53,6 +53,19 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'The examples can be found here: https://docs.github.com')
     })
 
+    it("doesn't paste markdown URL when pasting after user at mentions", function () {
+      textarea.value = '@'
+      textarea.setSelectionRange(1, 1)
+      const html = `
+      <a href="http://github.localhost/monalisa">monalisa</a>
+      `
+      paste(textarea, {'text/plain': 'monalisa', 'text/html': html})
+
+      // No change in textarea value here means no custom paste event handler was fired.
+      // So the browser default paste handler will be used.
+      assert.equal(textarea.value, '@')
+    })
+
     it('turns html tables into markdown', function () {
       const data = {
         'text/html': tableHtml

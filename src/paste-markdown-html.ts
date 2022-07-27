@@ -20,6 +20,10 @@ function onPaste(event: ClipboardEvent) {
   const field = event.currentTarget
   if (!(field instanceof HTMLTextAreaElement)) return
 
+  if (isWithinUserMention(field)) {
+    return
+  }
+
   // Get the plaintext and html version of clipboard contents
   let plaintext = transfer.getData('text/plain')
   const textHTML = transfer.getData('text/html')
@@ -89,6 +93,16 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
 
   // Unless we hit the node limit, we should have processed all nodes
   return index === NODE_LIMIT ? plaintext : markdown
+}
+
+function isWithinUserMention(textarea: HTMLTextAreaElement): boolean {
+  const selectionStart = textarea.selectionStart || 0
+  if (selectionStart === 0) {
+    return false
+  }
+
+  const previousChar = textarea.value.substring(selectionStart - 1, selectionStart)
+  return previousChar === '@'
 }
 
 function isEmptyString(text: string): boolean {
