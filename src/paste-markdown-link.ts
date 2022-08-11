@@ -55,6 +55,7 @@ function linkify(selectedText: string, text: string): string {
   return `[${selectedText}](${text})`
 }
 
+const URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\/?\s*?$/i
 function isURL(url: string): boolean {
-  return /^https?:\/\//i.test(url)
+  return URL_REGEX.test(url)
 }

@@ -43,6 +43,14 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
     })
 
+    it('creates a markdown link when the pasted url includes a trailing slash', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here.'
+      textarea.setSelectionRange(26, 30)
+      paste(textarea, {'text/plain': 'https://www.github.com/'})
+      assert.equal(textarea.value, 'The examples can be found [here](https://www.github.com/).')
+    })
+
     it("doesn't paste a markdown URL when pasting over a selected URL", function () {
       // eslint-disable-next-line i18n-text/no-en
       textarea.value = 'The examples can be found here: https://docs.github.com'
@@ -64,6 +72,15 @@ describe('paste-markdown', function () {
       // No change in textarea value here means no custom paste event handler was fired.
       // So the browser default paste handler will be used.
       assert.equal(textarea.value, '@')
+    })
+
+    it("doesn't paste markdown URL when additional text is being copied", function () {
+      textarea.value = 'github'
+      textarea.setSelectionRange(0, 6)
+      paste(textarea, {'text/plain': 'https://github.com plus some other content'})
+      // Synthetic paste events don't manipulate the DOM. The same textarea value
+      // means that the event handler didn't fire and normal paste happened.
+      assert.equal(textarea.value, 'github')
     })
 
     it('turns html tables into markdown', function () {
