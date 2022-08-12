@@ -51,6 +51,23 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'The examples can be found [here](https://www.github.com/).')
     })
 
+    it('creates a markdown link for longer urls', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here.'
+      textarea.setSelectionRange(26, 30)
+      paste(textarea, {'text/plain': 'https://www.github.com/path/to/something'})
+      assert.equal(textarea.value, 'The examples can be found [here](https://www.github.com/path/to/something).')
+    })
+
+    it('creates a link for http urls', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'Look over here please'
+      textarea.setSelectionRange(10, 14)
+      const url = 'http://someotherdomain.org/another/thing'
+      paste(textarea, {'text/plain': url})
+      assert.equal(textarea.value, `Look over [here](${url}) please`)
+    })
+
     it("doesn't paste a markdown URL when pasting over a selected URL", function () {
       // eslint-disable-next-line i18n-text/no-en
       textarea.value = 'The examples can be found here: https://docs.github.com'
