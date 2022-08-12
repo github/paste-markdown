@@ -55,8 +55,33 @@ describe('paste-markdown', function () {
       // eslint-disable-next-line i18n-text/no-en
       textarea.value = 'The examples can be found here.'
       textarea.setSelectionRange(26, 30)
-      paste(textarea, {'text/plain': 'https://www.github.com/path/to/something'})
-      assert.equal(textarea.value, 'The examples can be found [here](https://www.github.com/path/to/something).')
+      paste(textarea, {'text/plain': 'https://www.github.com/path_to/something-different/too'})
+      assert.equal(
+        textarea.value,
+        'The examples can be found [here](https://www.github.com/path_to/something-different/too).'
+      )
+    })
+
+    it('creates a markdown link with query string', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here.'
+      textarea.setSelectionRange(26, 30)
+      paste(textarea, {'text/plain': 'https://www.github.com/path/to/something?query=true'})
+      assert.equal(
+        textarea.value,
+        'The examples can be found [here](https://www.github.com/path/to/something?query=true).'
+      )
+    })
+
+    it('creates a markdown link with hash params', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here.'
+      textarea.setSelectionRange(26, 30)
+      paste(textarea, {'text/plain': 'https://www.github.com/path/to/something#section'})
+      assert.equal(
+        textarea.value,
+        'The examples can be found [here](https://www.github.com/path/to/something#section).'
+      )
     })
 
     it('creates a link for http urls', function () {
