@@ -33,7 +33,7 @@ function onPaste(event: ClipboardEvent) {
   event.stopPropagation()
   event.preventDefault()
 
-  insertText(field, linkify(selectedText, text))
+  insertText(field, linkify(selectedText, text.trim()))
 }
 
 function hasPlainText(transfer: DataTransfer): boolean {
@@ -55,7 +55,15 @@ function linkify(selectedText: string, text: string): string {
   return `[${selectedText}](${text})`
 }
 
-const URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\/?\s*?$/i
 function isURL(url: string): boolean {
-  return URL_REGEX.test(url)
+  try {
+    //eslint-disable-next-line no-restricted-syntax
+    const parsedURL = new URL(url)
+    return removeTrailingSlash(parsedURL.href).trim() === removeTrailingSlash(url).trim()
+  } catch {
+    return false
+  }
+}
+function removeTrailingSlash(url: string) {
+  return url.endsWith('/') ? url.slice(0, url.length - 1) : url
 }

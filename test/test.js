@@ -51,6 +51,57 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'The examples can be found [here](https://www.github.com/).')
     })
 
+    it('creates a markdown link for longer urls', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here.'
+      textarea.setSelectionRange(26, 30)
+      paste(textarea, {'text/plain': 'https://www.github.com/path_to/something-different/too'})
+      assert.equal(
+        textarea.value,
+        'The examples can be found [here](https://www.github.com/path_to/something-different/too).'
+      )
+    })
+
+    it('creates a markdown link with query string', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here.'
+      textarea.setSelectionRange(26, 30)
+      paste(textarea, {'text/plain': 'https://www.github.com/path/to/something?query=true'})
+      assert.equal(
+        textarea.value,
+        'The examples can be found [here](https://www.github.com/path/to/something?query=true).'
+      )
+    })
+
+    it('creates a markdown link with hash params', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here.'
+      textarea.setSelectionRange(26, 30)
+      paste(textarea, {'text/plain': 'https://www.github.com/path/to/something#section'})
+      assert.equal(
+        textarea.value,
+        'The examples can be found [here](https://www.github.com/path/to/something#section).'
+      )
+    })
+
+    it('creates a link for http urls', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'Look over here please'
+      textarea.setSelectionRange(10, 14)
+      const url = 'http://someotherdomain.org/another/thing'
+      paste(textarea, {'text/plain': url})
+      assert.equal(textarea.value, `Look over [here](${url}) please`)
+    })
+
+    it('creates a link when copied content includes spaces and a newline', () => {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'Look over here please'
+      textarea.setSelectionRange(10, 14)
+      const url = 'http://someotherdomain.org/another/thing            \n'
+      paste(textarea, {'text/plain': url})
+      assert.equal(textarea.value, `Look over [here](${url.trim()}) please`)
+    })
+
     it("doesn't paste a markdown URL when pasting over a selected URL", function () {
       // eslint-disable-next-line i18n-text/no-en
       textarea.value = 'The examples can be found here: https://docs.github.com'
