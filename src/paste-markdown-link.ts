@@ -33,7 +33,7 @@ function onPaste(event: ClipboardEvent) {
   event.stopPropagation()
   event.preventDefault()
 
-  insertText(field, linkify(selectedText, text))
+  insertText(field, linkify(selectedText, text.trim()))
 }
 
 function hasPlainText(transfer: DataTransfer): boolean {
@@ -59,7 +59,7 @@ function isURL(url: string): boolean {
   try {
     //eslint-disable-next-line no-restricted-syntax
     const parsedURL = new URL(url)
-    return removeTrailingSlash(parsedURL.href) === removeTrailingSlash(url)
+    return removeTrailingSlash(parsedURL.href).trim() === removeTrailingSlash(url).trim()
   } catch {
     return false
   }

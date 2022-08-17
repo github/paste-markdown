@@ -93,6 +93,15 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, `Look over [here](${url}) please`)
     })
 
+    it('creates a link when copied content includes spaces and a newline', () => {
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'Look over here please'
+      textarea.setSelectionRange(10, 14)
+      const url = 'http://someotherdomain.org/another/thing            \n'
+      paste(textarea, {'text/plain': url})
+      assert.equal(textarea.value, `Look over [here](${url.trim()}) please`)
+    })
+
     it("doesn't paste a markdown URL when pasting over a selected URL", function () {
       // eslint-disable-next-line i18n-text/no-en
       textarea.value = 'The examples can be found here: https://docs.github.com'
