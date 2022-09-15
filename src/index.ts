@@ -1,3 +1,4 @@
+import {OptionConfig, PASTE_AS_PLAIN_TEXT_ATTRIBUTE} from './option-config'
 import {install as installHTML, uninstall as uninstallHTML} from './paste-markdown-html'
 import {install as installImageLink, uninstall as uninstallImageLink} from './paste-markdown-image-link'
 import {install as installLink, uninstall as uninstallLink} from './paste-markdown-link'
@@ -12,9 +13,10 @@ interface Subscription {
   unsubscribe: () => void
 }
 
-function subscribe(el: HTMLElement): Subscription {
-  installSkipFormatting(el, installTable, installImageLink, installLink, installText, installHTML)
+function subscribe(el: HTMLElement, optionConfig?: OptionConfig): Subscription {
+  markElementWithConfigIfNeeded(el, optionConfig)
 
+  installSkipFormatting(el, installTable, installImageLink, installLink, installText, installHTML)
   return {
     unsubscribe: () => {
       uninstallSkipFormatting(el)
@@ -24,6 +26,18 @@ function subscribe(el: HTMLElement): Subscription {
       uninstallLink(el)
       uninstallText(el)
     }
+  }
+}
+
+function markElementWithConfigIfNeeded(el: HTMLElement, optionConfig?: OptionConfig) {
+  // eslint-disable-next-line no-console
+  console.log(optionConfig)
+
+  if (optionConfig?.pasteAsPlainText) {
+    // eslint-disable-next-line no-console
+    console.log(optionConfig?.pasteAsPlainText, 'HERE')
+
+    el.setAttribute(PASTE_AS_PLAIN_TEXT_ATTRIBUTE, 'true')
   }
 }
 

@@ -43,6 +43,38 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
     })
 
+    it('turns pasted urls on selected text into markdown links if pasteAsPlainText is false', function () {
+      subscription = subscribeWithOptionConfig(subscription, textarea, false)
+
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here.'
+      textarea.setSelectionRange(26, 30)
+      paste(textarea, {'text/plain': 'https://github.com'})
+      assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
+    })
+
+    it('turns pasted urls on selected text into markdown links if pasteAsPlainText is true and skip format flag is true', function () {
+      subscription = subscribeWithOptionConfig(subscription, textarea, true)
+
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here.'
+      textarea.setSelectionRange(26, 30)
+      dispatchSkipFormattingKeyEvent(textarea)
+      paste(textarea, {'text/plain': 'https://github.com'})
+      assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
+    })
+
+    it('pastes as plain text on selected text if pasteAsPlainText is true', function () {
+      subscription = subscribeWithOptionConfig(subscription, textarea, true)
+
+      // eslint-disable-next-line i18n-text/no-en
+      textarea.value = 'The examples can be found here.'
+      textarea.setSelectionRange(26, 30)
+      paste(textarea, {'text/plain': 'https://github.com'})
+      // The text area will be unchanged at this stage as the paste won't be handled by our listener
+      assert.equal(textarea.value, 'The examples can be found here.')
+    })
+
     it('creates a markdown link when the pasted url includes a trailing slash', function () {
       // eslint-disable-next-line i18n-text/no-en
       textarea.value = 'The examples can be found here.'
@@ -351,6 +383,12 @@ function dispatchSkipFormattingKeyEvent(textarea) {
       metaKey: true
     })
   )
+}
+
+function subscribeWithOptionConfig(subscription, textarea, pasteAsPlainText) {
+  // Clear the before test subscription with no config and re-subscribe with config
+  subscription.unsubscribe()
+  return subscribe(textarea, {pasteAsPlainText})
 }
 
 function paste(textarea, data) {

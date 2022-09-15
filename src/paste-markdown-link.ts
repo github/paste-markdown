@@ -1,3 +1,4 @@
+import {PASTE_AS_PLAIN_TEXT_ATTRIBUTE} from './option-config'
 import {insertText} from './text'
 import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 
@@ -11,7 +12,13 @@ export function uninstall(el: HTMLElement): void {
 
 function onPaste(event: ClipboardEvent) {
   const {currentTarget: el} = event
-  if (shouldSkipFormatting(el as HTMLElement)) return
+  const element = el as HTMLElement
+  const shouldPastePlainText = element.hasAttribute(PASTE_AS_PLAIN_TEXT_ATTRIBUTE)
+  const shouldSkipDefaultBehavior = shouldSkipFormatting(element)
+
+  if ((!shouldPastePlainText && shouldSkipDefaultBehavior) || (shouldPastePlainText && !shouldSkipDefaultBehavior)) {
+    return
+  }
 
   const transfer = event.clipboardData
   if (!transfer || !hasPlainText(transfer)) return
@@ -26,6 +33,7 @@ function onPaste(event: ClipboardEvent) {
 
   const selectedText = field.value.substring(field.selectionStart, field.selectionEnd)
   if (!selectedText.length) return
+
   // Prevent linkification when replacing an URL
   // Trim whitespace in case whitespace is selected by mistake or by intention
   if (isURL(selectedText.trim())) return
