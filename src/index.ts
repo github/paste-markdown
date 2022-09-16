@@ -30,13 +30,7 @@ function subscribe(el: HTMLElement, optionConfig?: OptionConfig): Subscription {
 }
 
 function markElementWithConfigIfNeeded(el: HTMLElement, optionConfig?: OptionConfig) {
-  // eslint-disable-next-line no-console
-  console.log(optionConfig)
-
   if (optionConfig?.pasteAsPlainText) {
-    // eslint-disable-next-line no-console
-    console.log(optionConfig?.pasteAsPlainText, 'HERE')
-
     el.setAttribute(PASTE_AS_PLAIN_TEXT_ATTRIBUTE, 'true')
   }
 }
