@@ -1,4 +1,3 @@
-import {OptionConfig, PASTE_AS_PLAIN_TEXT_ATTRIBUTE} from './option-config'
 import {install as installHTML, uninstall as uninstallHTML} from './paste-markdown-html'
 import {install as installImageLink, uninstall as uninstallImageLink} from './paste-markdown-image-link'
 import {install as installLink, uninstall as uninstallLink} from './paste-markdown-link'
@@ -8,15 +7,14 @@ import {
 } from './paste-keyboard-shortcut-helper'
 import {install as installTable, uninstall as uninstallTable} from './paste-markdown-table'
 import {install as installText, uninstall as uninstallText} from './paste-markdown-text'
+import {OptionConfig} from './option-config'
 
 interface Subscription {
   unsubscribe: () => void
 }
 
 function subscribe(el: HTMLElement, optionConfig?: OptionConfig): Subscription {
-  markElementWithConfigIfNeeded(el, optionConfig)
-
-  installSkipFormatting(el, installTable, installImageLink, installLink, installText, installHTML)
+  installSkipFormatting(el, [installTable, installImageLink, installText, installHTML], [installLink], optionConfig)
   return {
     unsubscribe: () => {
       uninstallSkipFormatting(el)
@@ -26,12 +24,6 @@ function subscribe(el: HTMLElement, optionConfig?: OptionConfig): Subscription {
       uninstallLink(el)
       uninstallText(el)
     }
-  }
-}
-
-function markElementWithConfigIfNeeded(el: HTMLElement, optionConfig?: OptionConfig) {
-  if (optionConfig?.pasteAsPlainText) {
-    el.setAttribute(PASTE_AS_PLAIN_TEXT_ATTRIBUTE, 'true')
   }
 }
 

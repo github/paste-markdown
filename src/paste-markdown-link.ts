@@ -1,8 +1,11 @@
-import {PASTE_AS_PLAIN_TEXT_ATTRIBUTE} from './option-config'
+import {OptionConfig} from './option-config'
 import {insertText} from './text'
 import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 
-export function install(el: HTMLElement): void {
+const pasteAsPlainTextMap = new WeakMap<HTMLElement, boolean>()
+
+export function install(el: HTMLElement, optionConfig?: OptionConfig): void {
+  pasteAsPlainTextMap.set(el, optionConfig?.pasteAsPlainText === true)
   el.addEventListener('paste', onPaste)
 }
 
@@ -13,7 +16,7 @@ export function uninstall(el: HTMLElement): void {
 function onPaste(event: ClipboardEvent) {
   const {currentTarget: el} = event
   const element = el as HTMLElement
-  const shouldPastePlainText = element.hasAttribute(PASTE_AS_PLAIN_TEXT_ATTRIBUTE)
+  const shouldPastePlainText = pasteAsPlainTextMap.get(element) ?? false
   const shouldSkipDefaultBehavior = shouldSkipFormatting(element)
 
   if ((!shouldPastePlainText && shouldSkipDefaultBehavior) || (shouldPastePlainText && !shouldSkipDefaultBehavior)) {
