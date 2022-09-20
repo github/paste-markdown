@@ -43,7 +43,7 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
     })
 
-    it('turns pasted urls on selected text into markdown links if pasteAsPlainText is false', function () {
+    it('turns pasted urls on selected text into markdown links if pasteLinkAsPlainTextOverSelectedText is false', function () {
       subscription = subscribeWithOptionConfig(subscription, textarea, false)
 
       // eslint-disable-next-line i18n-text/no-en
@@ -53,7 +53,7 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
     })
 
-    it('turns pasted urls on selected text into markdown links if pasteAsPlainText is true and skip format flag is true', function () {
+    it('turns pasted urls on selected text into markdown links if pasteLinkAsPlainTextOverSelectedText is true and skip format flag is true', function () {
       subscription = subscribeWithOptionConfig(subscription, textarea, true)
 
       // eslint-disable-next-line i18n-text/no-en
@@ -64,7 +64,7 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'The examples can be found [here](https://github.com).')
     })
 
-    it('pastes as plain text on selected text if pasteAsPlainText is true', function () {
+    it('pastes as plain text on selected text if pasteLinkAsPlainTextOverSelectedText is true', function () {
       subscription = subscribeWithOptionConfig(subscription, textarea, true)
 
       // eslint-disable-next-line i18n-text/no-en
@@ -385,10 +385,10 @@ function dispatchSkipFormattingKeyEvent(textarea) {
   )
 }
 
-function subscribeWithOptionConfig(subscription, textarea, pasteAsPlainText) {
+function subscribeWithOptionConfig(subscription, textarea, pasteLinkAsPlainTextOverSelectedText) {
   // Clear the before test subscription with no config and re-subscribe with config
   subscription.unsubscribe()
-  return subscribe(textarea, {pasteAsPlainText})
+  return subscribe(textarea, {pasteLinkAsPlainTextOverSelectedText})
 }
 
 function paste(textarea, data) {

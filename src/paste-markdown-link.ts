@@ -2,10 +2,10 @@ import {OptionConfig} from './option-config'
 import {insertText} from './text'
 import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 
-const pasteAsPlainTextMap = new WeakMap<HTMLElement, boolean>()
+const pasteLinkAsPlainTextOverSelectedTextMap = new WeakMap<HTMLElement, boolean>()
 
 export function install(el: HTMLElement, optionConfig?: OptionConfig): void {
-  pasteAsPlainTextMap.set(el, optionConfig?.pasteAsPlainText === true)
+  pasteLinkAsPlainTextOverSelectedTextMap.set(el, optionConfig?.pasteLinkAsPlainTextOverSelectedText === true)
   el.addEventListener('paste', onPaste)
 }
 
@@ -16,10 +16,13 @@ export function uninstall(el: HTMLElement): void {
 function onPaste(event: ClipboardEvent) {
   const {currentTarget: el} = event
   const element = el as HTMLElement
-  const shouldPastePlainText = pasteAsPlainTextMap.get(element) ?? false
+  const shouldPasteAsPlainText = pasteLinkAsPlainTextOverSelectedTextMap.get(element) ?? false
   const shouldSkipDefaultBehavior = shouldSkipFormatting(element)
 
-  if ((!shouldPastePlainText && shouldSkipDefaultBehavior) || (shouldPastePlainText && !shouldSkipDefaultBehavior)) {
+  if (
+    (!shouldPasteAsPlainText && shouldSkipDefaultBehavior) ||
+    (shouldPasteAsPlainText && !shouldSkipDefaultBehavior)
+  ) {
     return
   }
 

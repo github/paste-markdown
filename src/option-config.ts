@@ -1,3 +1,3 @@
 export interface OptionConfig {
-  pasteAsPlainText?: boolean
+  pasteLinkAsPlainTextOverSelectedText?: boolean
 }
