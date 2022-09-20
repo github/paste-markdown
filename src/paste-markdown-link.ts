@@ -5,7 +5,7 @@ import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 const pasteLinkAsPlainTextOverSelectedTextMap = new WeakMap<HTMLElement, boolean>()
 
 export function install(el: HTMLElement, optionConfig?: OptionConfig): void {
-  pasteLinkAsPlainTextOverSelectedTextMap.set(el, optionConfig?.pasteLinkAsPlainTextOverSelectedText === true)
+  pasteLinkAsPlainTextOverSelectedTextMap.set(el, optionConfig?.defaultPlainTextPaste?.urlLinks === true)
   el.addEventListener('paste', onPaste)
 }
 

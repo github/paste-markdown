@@ -385,10 +385,10 @@ function dispatchSkipFormattingKeyEvent(textarea) {
   )
 }
 
-function subscribeWithOptionConfig(subscription, textarea, pasteLinkAsPlainTextOverSelectedText) {
+function subscribeWithOptionConfig(subscription, textarea, urlLinks) {
   // Clear the before test subscription with no config and re-subscribe with config
   subscription.unsubscribe()
-  return subscribe(textarea, {pasteLinkAsPlainTextOverSelectedText})
+  return subscribe(textarea, {defaultPlainTextPaste: {urlLinks}})
 }
 
 function paste(textarea, data) {
