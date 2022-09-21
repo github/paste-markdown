@@ -1,3 +1,5 @@
+import {OptionConfig} from './option-config'
+
 const skipFormattingMap = new WeakMap<HTMLElement, boolean>()
 
 function setSkipFormattingFlag(event: KeyboardEvent): void {
@@ -21,11 +23,15 @@ export function shouldSkipFormatting(el: HTMLElement): boolean {
   return shouldSkipFormattingState
 }
 
-export function installAround(el: HTMLElement, ...installCallbacks: Array<(el: HTMLElement) => void>): void {
+export function installAround(
+  el: HTMLElement,
+  installCallbacks: Array<(el: HTMLElement, optionConfig?: OptionConfig) => void>,
+  optionConfig?: OptionConfig
+): void {
   el.addEventListener('keydown', setSkipFormattingFlag)
 
   for (const installCallback of installCallbacks) {
-    installCallback(el)
+    installCallback(el, optionConfig)
   }
 
   el.addEventListener('paste', unsetSkipFormattedFlag)

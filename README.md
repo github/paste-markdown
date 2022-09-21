@@ -44,6 +44,25 @@ Some `<table>`s are not meant to be pasted as markdown; for example, a file cont
 </table>
 ```
 
+### Granular control for pasting as plain text
+
+If you're wanting more granular support of pasting certain items as plain text by default, you can pass in the controls config at the `subscribe` level.
+
+Our config support looks as follows:
+
+```js
+import {subscribe} from '@github/paste-markdown'
+
+// Subscribe the behavior to the textarea with pasting URL links as plain text by default.
+subscribe(document.querySelector('textarea[data-paste-markdown]'), {defaultPlainTextPaste: {urlLinks: true}})
+```
+
+In this scenario above, pasting a URL over selected text will paste as plain text by default, but pasting a table will still paste as markdown by default.
+
+Only the `urlLinks` param is currently supported.
+
+If there is no config passed in, or attributes missing, this will always default to `false`, being the existing behavior.
+
 ## Development
 
 ```

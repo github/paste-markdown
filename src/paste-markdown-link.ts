@@ -1,7 +1,11 @@
+import {OptionConfig} from './option-config'
 import {insertText} from './text'
 import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 
-export function install(el: HTMLElement): void {
+const pasteLinkAsPlainTextOverSelectedTextMap = new WeakMap<HTMLElement, boolean>()
+
+export function install(el: HTMLElement, optionConfig?: OptionConfig): void {
+  pasteLinkAsPlainTextOverSelectedTextMap.set(el, optionConfig?.defaultPlainTextPaste?.urlLinks === true)
   el.addEventListener('paste', onPaste)
 }
 
@@ -11,7 +15,16 @@ export function uninstall(el: HTMLElement): void {
 
 function onPaste(event: ClipboardEvent) {
   const {currentTarget: el} = event
-  if (shouldSkipFormatting(el as HTMLElement)) return
+  const element = el as HTMLElement
+  const shouldPasteAsPlainText = pasteLinkAsPlainTextOverSelectedTextMap.get(element) ?? false
+  const shouldSkipDefaultBehavior = shouldSkipFormatting(element)
+
+  if (
+    (!shouldPasteAsPlainText && shouldSkipDefaultBehavior) ||
+    (shouldPasteAsPlainText && !shouldSkipDefaultBehavior)
+  ) {
+    return
+  }
 
   const transfer = event.clipboardData
   if (!transfer || !hasPlainText(transfer)) return
@@ -26,6 +39,7 @@ function onPaste(event: ClipboardEvent) {
 
   const selectedText = field.value.substring(field.selectionStart, field.selectionEnd)
   if (!selectedText.length) return
+
   // Prevent linkification when replacing an URL
   // Trim whitespace in case whitespace is selected by mistake or by intention
   if (isURL(selectedText.trim())) return

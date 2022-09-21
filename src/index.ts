@@ -7,14 +7,14 @@ import {
 } from './paste-keyboard-shortcut-helper'
 import {install as installTable, uninstall as uninstallTable} from './paste-markdown-table'
 import {install as installText, uninstall as uninstallText} from './paste-markdown-text'
+import {OptionConfig} from './option-config'
 
 interface Subscription {
   unsubscribe: () => void
 }
 
-function subscribe(el: HTMLElement): Subscription {
-  installSkipFormatting(el, installTable, installImageLink, installLink, installText, installHTML)
-
+function subscribe(el: HTMLElement, optionConfig?: OptionConfig): Subscription {
+  installSkipFormatting(el, [installTable, installImageLink, installLink, installText, installHTML], optionConfig)
   return {
     unsubscribe: () => {
       uninstallSkipFormatting(el)
