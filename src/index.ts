@@ -14,7 +14,7 @@ interface Subscription {
 }
 
 function subscribe(el: HTMLElement, optionConfig?: OptionConfig): Subscription {
-  installSkipFormatting(el, [installTable, installImageLink, installText, installHTML], [installLink], optionConfig)
+  installSkipFormatting(el, [installTable, installImageLink, installLink, installText, installHTML], optionConfig)
   return {
     unsubscribe: () => {
       uninstallSkipFormatting(el)

@@ -8,6 +8,6 @@ interface PlainTextParams {
   // Not currently implemented behavior
   /*imageLinks?: boolean
   html?: boolean
-  table?: boolean
+  tables?: boolean
   text?: boolean*/
 }

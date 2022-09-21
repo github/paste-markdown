@@ -25,17 +25,12 @@ export function shouldSkipFormatting(el: HTMLElement): boolean {
 
 export function installAround(
   el: HTMLElement,
-  installCallbacks: Array<(el: HTMLElement) => void>,
-  installCallbacksWithOptions: Array<(el: HTMLElement, optionConfig?: OptionConfig) => void>,
+  installCallbacks: Array<(el: HTMLElement, optionConfig?: OptionConfig) => void>,
   optionConfig?: OptionConfig
 ): void {
   el.addEventListener('keydown', setSkipFormattingFlag)
 
   for (const installCallback of installCallbacks) {
-    installCallback(el)
-  }
-
-  for (const installCallback of installCallbacksWithOptions) {
     installCallback(el, optionConfig)
   }
 
