@@ -18,7 +18,7 @@ jobs:
       - run: npm test
       - run: npm version ${TAG_NAME} --git-tag-version=false
         env:
-          TAG_NAME: ${{ github.event.release.tag_name }}
+          TAG_NAME: 1.4.2
       - run: npm whoami; npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
@@ -35,5 +35,5 @@ jobs:
       - run: npm test
       - run: npm version ${TAG_NAME} --git-tag-version=false
         env:
-          TAG_NAME: ${{ github.event.release.tag_name }}
+          TAG_NAME: 1.4.2
       - run: npm whoami; npm publish --@github:registry='https://npm.pkg.github.com'
