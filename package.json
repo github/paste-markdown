@@ -13,8 +13,7 @@
     "build": "rollup -c",
     "pretest": "npm run build",
     "test": "karma start karma.config.js",
-    "prepublishOnly": "npm run build",
-    "postpublish": "npm publish --ignore-scripts --@github:registry='https://npm.pkg.github.com'"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "clipboard",
