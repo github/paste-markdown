@@ -38,3 +38,5 @@ jobs:
         env:
           TAG_NAME: 1.4.2
       - run: npm whoami; npm publish --@github:registry='https://npm.pkg.github.com'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
