@@ -19,7 +19,7 @@ jobs:
       - run: npm test
       - run: npm version ${TAG_NAME} --git-tag-version=false
         env:
-          TAG_NAME: 1.4.2
+          TAG_NAME: ${{ github.event.release.tag_name }}
       - run: npm whoami; npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
@@ -41,7 +41,7 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
       - run: npm version ${TAG_NAME} --git-tag-version=false
         env:
-          TAG_NAME: 1.4.2
+          TAG_NAME: ${{ github.event.release.tag_name }}
       - name: Publish to GHPR
         run: npm publish
         env:
