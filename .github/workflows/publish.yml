@@ -36,4 +36,4 @@ jobs:
       - run: npm version ${TAG_NAME} --git-tag-version=false
         env:
           TAG_NAME: ${{ github.event.release.tag_name }}
-      - run: npm whoami; npm publish --ignore-scripts --@github:registry='https://npm.pkg.github.com'
+      - run: npm whoami; npm publish --@github:registry='https://npm.pkg.github.com'
