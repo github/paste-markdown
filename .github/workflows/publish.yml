@@ -27,13 +27,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+          cache: npm
+      - run: npm ci
+      - run: npm test
       - name: Setup GHPR
         uses: actions/setup-node@v3
         with:
           node-version: 14
           registry-url: 'https://npm.pkg.github.com'
-      - run: npm ci
-      - run: npm test
       - run: npm version ${TAG_NAME} --git-tag-version=false
         env:
           TAG_NAME: 1.4.2
