@@ -401,9 +401,10 @@ describe('paste-markdown', function () {
     it('pastes markdown with link labels that contains special characters in html', function () {
       // eslint-disable-next-line github/unescaped-html-literal
       const sentence = `<meta charset='utf-8'>
-      <a href="https://www.abcxyz.org/">foo bar</a> <a href="https://example.com/?q=foo&bar=baz">foo&bar</a>`
-      const plaintextSentence = 'foo bar foo&bar'
-      const markdownSentence = '[foo bar](https://www.abcxyz.org/) [foo&bar](https://example.com/?q=foo&bar=baz)'
+      <p>foo&bar <a href="https://www.abcxyz.org/">foo bar</a> <a href="https://example.com/?q=foo&bar=baz">foo&bar</a></p>`
+      const plaintextSentence = 'foo&bar foo bar foo&bar'
+      const markdownSentence =
+        'foo&bar [foo bar](https://www.abcxyz.org/) [foo&bar](https://example.com/?q=foo&bar=baz)'
 
       paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
       assert.equal(textarea.value, markdownSentence)
