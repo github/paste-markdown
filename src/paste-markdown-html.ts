@@ -66,7 +66,7 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
       ? (currentNode.textContent || '').replace(/[\t\n\r ]+/g, ' ')
       : (currentNode.firstChild as Text)?.wholeText || ''
 
-    // // update current index without link
+    // update value of markdownIgnoreBeforeIndex with current index if the current node is not a link
     if (!isLink(currentNode)) {
       markdownIgnoreBeforeIndex += text.replace(/[\t\n\r ]+/g, ' ').trimStart().length
     }

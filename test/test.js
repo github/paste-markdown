@@ -384,6 +384,41 @@ describe('paste-markdown', function () {
       paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
       assert.equal(textarea.value, markdownSentence)
     })
+
+    it('pastes markdown with multiple links and labels correctly', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      const commonSentence = 'Great example for example resources for developers'
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'><span>
+      ${commonSentence}: <a href="https://www.example.com/">example</a> and <a href="https://www.example.com/">example</a>.</span>`
+      const plaintextSentence = `${commonSentence}: example and example.`
+      const markdownSentence = `${commonSentence}: [example](https://www.example.com/) and [example](https://www.example.com/).`
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
+
+    it('pastes markdown with link labels that contains special characters in html', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'>
+      <a href="https://www.abcxyz.org/">foo bar</a> <a href="https://example.com/?q=foo&bar=baz">foo&bar</a>`
+      const plaintextSentence = 'foo bar foo&bar'
+      const markdownSentence = '[foo bar](https://www.abcxyz.org/) [foo&bar](https://example.com/?q=foo&bar=baz)'
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
+
+    it('pastes markdown with link labels that contains emojis in html', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'>
+      <p>foo bar <a href="https://www.abcxyz.org/">foo</a> bar foo <a href="https://example.com/">🚀 bar 🚀</a></p>`
+      const plaintextSentence = 'foo bar foo bar foo 🚀 bar 🚀'
+      const markdownSentence = 'foo bar [foo](https://www.abcxyz.org/) bar foo [🚀 bar 🚀](https://example.com/)'
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
   })
 })
 
