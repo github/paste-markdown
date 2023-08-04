@@ -202,7 +202,7 @@ describe('paste-markdown', function () {
       assert.equal(
         textarea.value.trim(),
         // eslint-disable-next-line github/unescaped-html-literal
-        `<p>Here is a cool table</p>\n        \n  \n\n${tableMarkdown}\n\n\n\n        <p>Very cool</p>`
+        `<p>Here is a cool table</p>\n        \n  \n${tableMarkdown}\n\n\n\n        <p>Very cool</p>`
       )
     })
 
@@ -217,6 +217,19 @@ describe('paste-markdown', function () {
           </tbody>
         </table>
         `
+      }
+      paste(textarea, data)
+
+      // Synthetic paste events don't manipulate the DOM. A empty textarea
+      // means that the event handler didn't fire and normal paste happened.
+      assertUnformattedPaste(textarea)
+    })
+
+    it('rejects malformed tables', function () {
+      // eslint-disable-next-line github/unescaped-html-literal, prefer-template
+      const html = '<table'.repeat(999) + '<div><table></div>'
+      const data = {
+        'text/html': html
       }
       paste(textarea, data)
 
