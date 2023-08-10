@@ -91,6 +91,12 @@ function generateText(transfer: DataTransfer): string | undefined {
   const html = transfer.getData('text/html')
   if (!/<table/i.test(html)) return
 
+  // eslint-disable-next-line github/unescaped-html-literal
+  const start = html.substring(0, html.indexOf('<table'))
+  const tableCloseIndex = html.lastIndexOf('</table>')
+  if (!start || !tableCloseIndex) return
+  const end = html.substring(tableCloseIndex + 8)
+
   const parser = new DOMParser()
   const parsedDocument = parser.parseFromString(html, 'text/html')
 
@@ -100,5 +106,7 @@ function generateText(transfer: DataTransfer): string | undefined {
 
   const formattedTable = tableMarkdown(table)
 
-  return html.replace(/<meta.*?>/, '').replace(/<table[.\S\s]*<\/table>/, `\n${formattedTable}`)
+  if (!formattedTable) return
+
+  return [start, formattedTable, end].join('').replace(/<meta.*?>/, '')
 }
