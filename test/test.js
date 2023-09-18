@@ -166,6 +166,54 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, 'github')
     })
 
+    it('turns HTML strong tags into bold', function () {
+      const html = `not bold <strong>bold</strong> not bold`
+      paste(textarea, {'text/plain': 'not bold bold not bold', 'text/html': html})
+      assert.equal(textarea.value, 'not bold **bold** not bold')
+    })
+
+    it('turns HTML em tags into italics', function () {
+      const html = `not italic <em>italic</em> not italic`
+      paste(textarea, {'text/plain': 'not italic italic not italic', 'text/html': html})
+      assert.equal(textarea.value, 'not italic *italic* not italic')
+    })
+
+    it('turns HTML del tags into strikethrough', function () {
+      const html = `not strikethrough <del>strikethrough</del> not strikethrough`
+      paste(textarea, {'text/plain': 'not strikethrough strikethrough not strikethrough', 'text/html': html})
+      assert.equal(textarea.value, 'not strikethrough ~~strikethrough~~ not strikethrough')
+    })
+
+    it('turns HTML code tags into inline code', function () {
+      const html = `not code <code>code</code> not code`
+      paste(textarea, {'text/plain': 'not code code not code', 'text/html': html})
+      assert.equal(textarea.value, 'not code `code` not code')
+    })
+
+    it('keeps HTML kbd tags', function () {
+      const html = `not kbd <kbd>kbd</kbd> not kbd`
+      paste(textarea, {'text/plain': 'not kbd kbd not kbd', 'text/html': html})
+      assert.equal(textarea.value, 'not kbd <kbd>kbd</kbd> not kbd')
+    })
+
+    it('keeps HTML sup tags', function () {
+      const html = `not sup <sup>sup</sup> not sup`
+      paste(textarea, {'text/plain': 'not sup sup not sup', 'text/html': html})
+      assert.equal(textarea.value, 'not sup <sup>sup</sup> not sup')
+    })
+
+    it('keeps HTML sub tags', function () {
+      const html = `not sub <sub>sub</sub> not sub`
+      paste(textarea, {'text/plain': 'not sub sub not sub', 'text/html': html})
+      assert.equal(textarea.value, 'not sub <sub>sub</sub> not sub')
+    })
+
+    it('keeps HTML ins tags', function () {
+      const html = `not ins <ins>ins</ins> not ins`
+      paste(textarea, {'text/plain': 'not ins ins not ins', 'text/html': html})
+      assert.equal(textarea.value, 'not ins <ins>ins</ins> not ins')
+    })
+
     it('turns html tables into markdown', function () {
       const data = {
         'text/html': tableHtml
