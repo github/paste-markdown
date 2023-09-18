@@ -175,7 +175,7 @@ describe('paste-markdown', function () {
     it('turns HTML em tags into italics', function () {
       const html = `not italic <em>italic</em> not italic`
       paste(textarea, {'text/plain': 'not italic italic not italic', 'text/html': html})
-      assert.equal(textarea.value, 'not italic *italic* not italic')
+      assert.equal(textarea.value, 'not italic _italic_ not italic')
     })
 
     it('turns HTML del tags into strikethrough', function () {
