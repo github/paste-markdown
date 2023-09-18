@@ -39,7 +39,7 @@ function onPaste(event: ClipboardEvent) {
   const parser = new DOMParser()
   const doc = parser.parseFromString(textHTMLClean, 'text/html')
   const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, node =>
-    node.parentNode && isLink(node.parentNode) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+    node.parentNode && getNodeMarkdownBuilder(node.parentNode) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
   )
 
   const markdown = convertToMarkdown(plaintext, walker)
@@ -63,9 +63,7 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
   // Walk through the DOM tree
   while (currentNode && index < NODE_LIMIT) {
     index++
-    const text = isLink(currentNode)
-      ? (currentNode.textContent || '').replace(/[\t\n\r ]+/g, ' ')
-      : (currentNode.firstChild as Text)?.wholeText || ''
+    const text = currentNode.textContent ?? ''
 
     // No need to transform whitespace
     if (isEmptyString(text)) {
@@ -77,13 +75,15 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
     const markdownFoundIndex = markdown.indexOf(text, markdownIgnoreBeforeIndex)
 
     if (markdownFoundIndex >= 0) {
-      if (isLink(currentNode)) {
-        const markdownLink = linkify(currentNode, text)
+      const builder = getNodeMarkdownBuilder(currentNode)
+
+      if (builder) {
+        const nodeMarkdown = builder()
         // Transform 'example link plus more text' into 'example [link](example link) plus more text'
         // Method: 'example [link](example link) plus more text' = 'example ' + '[link](example link)' + ' plus more text'
         markdown =
-          markdown.slice(0, markdownFoundIndex) + markdownLink + markdown.slice(markdownFoundIndex + text.length)
-        markdownIgnoreBeforeIndex = markdownFoundIndex + markdownLink.length
+          markdown.slice(0, markdownFoundIndex) + nodeMarkdown + markdown.slice(markdownFoundIndex + text.length)
+        markdownIgnoreBeforeIndex = markdownFoundIndex + nodeMarkdown.length
       } else {
         markdownIgnoreBeforeIndex = markdownFoundIndex + text.length
       }
@@ -94,6 +94,10 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
 
   // Unless we hit the node limit, we should have processed all nodes
   return index === NODE_LIMIT ? plaintext : markdown
+}
+
+function getNodeMarkdownBuilder(node: Node): (() => string) | void {
+  if (node instanceof HTMLAnchorElement) return () => linkify(node)
 }
 
 function isWithinUserMention(textarea: HTMLTextAreaElement): boolean {
@@ -110,16 +114,13 @@ function isEmptyString(text: string): boolean {
   return !text || text?.trim().length === 0
 }
 
-function isLink(node: Node): node is HTMLAnchorElement {
-  return (node as HTMLElement).tagName?.toLowerCase() === 'a' && (node as HTMLElement).hasAttribute('href')
-}
-
 function hasHTML(transfer: DataTransfer): boolean {
   return transfer.types.includes('text/html')
 }
 
 // Makes markdown link from a link element, avoiding special GitHub links
-function linkify(element: HTMLAnchorElement, label: string): string {
+function linkify(element: HTMLAnchorElement): string {
+  const label = (element.textContent ?? '').replace(/[\t\n\r ]+/g, ' ')
   const url = element.href || ''
   let markdown = ''
 
