@@ -1,5 +1,6 @@
 import {insertText} from './text'
 import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
+import {markdownLink} from './markdown'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('paste', onPaste)
@@ -130,7 +131,7 @@ function linkify(element: HTMLAnchorElement, label: string): string {
     markdown = url
     // Otherwise, make a markdown link
   } else {
-    markdown = `[${label}](${url})`
+    markdown = markdownLink(label, url)
   }
 
   return markdown

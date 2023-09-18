@@ -1,6 +1,7 @@
 import {OptionConfig} from './option-config'
 import {insertText} from './text'
 import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
+import {markdownLink} from './markdown'
 
 const pasteLinkAsPlainTextOverSelectedTextMap = new WeakMap<HTMLElement, boolean>()
 
@@ -47,7 +48,7 @@ function onPaste(event: ClipboardEvent) {
   event.stopPropagation()
   event.preventDefault()
 
-  insertText(field, linkify(selectedText, text.trim()))
+  insertText(field, markdownLink(selectedText, text.trim()))
 }
 
 function hasPlainText(transfer: DataTransfer): boolean {
@@ -63,10 +64,6 @@ function isWithinLink(textarea: HTMLTextAreaElement): boolean {
   } else {
     return false
   }
-}
-
-function linkify(selectedText: string, text: string): string {
-  return `[${selectedText}](${text})`
 }
 
 function isURL(url: string): boolean {

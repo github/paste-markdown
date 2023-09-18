@@ -1,5 +1,6 @@
 import {insertText} from './text'
 import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
+import {markdownTable} from './markdown'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('dragover', onDragover)
@@ -73,16 +74,10 @@ function tableMarkdown(node: Element): string {
   const firstRow = rows.shift()
   if (!firstRow) return ''
   const headers = tableHeaders(firstRow)
-  const spacers = headers.map(() => '--')
-  const header = `${headers.join(' | ')}\n${spacers.join(' | ')}\n`
 
-  const body = rows
-    .map(row => {
-      return Array.from(row.querySelectorAll('td')).map(columnText).join(' | ')
-    })
-    .join('\n')
+  const body = rows.map(row => Array.from(row.querySelectorAll('td')).map(columnText))
 
-  return `\n${header}${body}\n\n`
+  return `\n${markdownTable(headers, ...body)}\n\n`
 }
 
 function generateText(transfer: DataTransfer): string | undefined {
