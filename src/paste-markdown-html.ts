@@ -1,5 +1,15 @@
+import {
+  markdownBold,
+  markdownInlineCode,
+  markdownInsertion,
+  markdownItalic,
+  markdownKeyboard,
+  markdownLink,
+  markdownStrikethrough,
+  markdownSubscript,
+  markdownSuperscript
+} from './markdown'
 import {insertText} from './text'
-import {markdownLink} from './markdown'
 import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 
 export function install(el: HTMLElement): void {
@@ -98,6 +108,25 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
 
 function getNodeMarkdownBuilder(node: Node): (() => string) | void {
   if (node instanceof HTMLAnchorElement) return () => linkify(node)
+
+  switch (node.nodeName) {
+    case 'STRONG':
+      return () => simpleInlineTag(node, markdownBold)
+    case 'EM':
+      return () => simpleInlineTag(node, markdownItalic)
+    case 'CODE':
+      return () => simpleInlineTag(node, markdownInlineCode)
+    case 'KBD':
+      return () => simpleInlineTag(node, markdownKeyboard)
+    case 'DEL':
+      return () => simpleInlineTag(node, markdownStrikethrough)
+    case 'INS':
+      return () => simpleInlineTag(node, markdownInsertion)
+    case 'SUP':
+      return () => simpleInlineTag(node, markdownSuperscript)
+    case 'SUB':
+      return () => simpleInlineTag(node, markdownSubscript)
+  }
 }
 
 function isWithinUserMention(textarea: HTMLTextAreaElement): boolean {
@@ -118,9 +147,13 @@ function hasHTML(transfer: DataTransfer): boolean {
   return transfer.types.includes('text/html')
 }
 
+function stripLineBreaks(text: string): string {
+  return text.replace(/[\t\n\r ]+/g, ' ')
+}
+
 // Makes markdown link from a link element, avoiding special GitHub links
 function linkify(element: HTMLAnchorElement): string {
-  const label = (element.textContent ?? '').replace(/[\t\n\r ]+/g, ' ')
+  const label = stripLineBreaks(element.textContent ?? '')
   const url = element.href || ''
   let markdown = ''
 
@@ -136,6 +169,11 @@ function linkify(element: HTMLAnchorElement): string {
   }
 
   return markdown
+}
+
+function simpleInlineTag(element: Node, markdownBuilder: (text: string) => string): string {
+  const text = stripLineBreaks(element.textContent ?? '')
+  return markdownBuilder(text)
 }
 
 // Special GitHub links have either a hover card or certain class name
