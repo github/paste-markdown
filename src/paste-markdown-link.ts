@@ -1,7 +1,7 @@
 import {OptionConfig} from './option-config'
 import {insertText} from './text'
-import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 import {markdownLink} from './markdown'
+import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 
 const pasteLinkAsPlainTextOverSelectedTextMap = new WeakMap<HTMLElement, boolean>()
 

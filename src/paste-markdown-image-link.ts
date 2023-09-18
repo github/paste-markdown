@@ -1,7 +1,7 @@
 /* @flow strict */
 import {insertText} from './text'
-import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 import {markdownImage} from './markdown'
+import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('dragover', onDragover)
@@ -57,7 +57,7 @@ function onPaste(event: ClipboardEvent) {
 }
 
 function linkify(link: string): string {
-  return isImageLink(link) ? `\n${markdownImage(link, "")}\n` : link
+  return isImageLink(link) ? `\n${markdownImage(link, '')}\n` : link
 }
 
 function hasFile(transfer: DataTransfer): boolean {

@@ -1,6 +1,6 @@
 import {insertText} from './text'
-import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 import {markdownLink} from './markdown'
+import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('paste', onPaste)
