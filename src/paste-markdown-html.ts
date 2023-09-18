@@ -48,8 +48,10 @@ function onPaste(event: ClipboardEvent) {
   // Generate DOM tree from HTML string
   const parser = new DOMParser()
   const doc = parser.parseFromString(textHTMLClean, 'text/html')
-  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, node =>
-    node.parentNode && getNodeMarkdownBuilder(node.parentNode) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+
+  // Walk the tree as plain text except for supported elements. We will skip children of supported elements in convertToMarkdown.
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, node =>
+    node instanceof Text || getNodeMarkdownBuilder(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
   )
 
   const markdown = convertToMarkdown(plaintext, walker)
@@ -94,6 +96,12 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
         markdown =
           markdown.slice(0, markdownFoundIndex) + nodeMarkdown + markdown.slice(markdownFoundIndex + text.length)
         markdownIgnoreBeforeIndex = markdownFoundIndex + nodeMarkdown.length
+
+        // We cannot step inside supported nodes, even though it might be nice to have. This is because we've added
+        // the length of the node text to markdownIgnoreBeforeIndex, so we've already moved past this part of the
+        // Markdown.
+        currentNode = walker.nextSibling()
+        continue
       } else {
         markdownIgnoreBeforeIndex = markdownFoundIndex + text.length
       }

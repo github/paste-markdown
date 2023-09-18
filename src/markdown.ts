@@ -3,7 +3,7 @@ export function markdownLink(text: string, url: string): string {
 }
 
 export function markdownImage(url: string, altText: string): string {
-  return `!${markdownLink(altText, url)}}`
+  return `!${markdownLink(altText, url)}`
 }
 
 export function markdownTable(headerCells: string[], ...rows: string[][]): string {
