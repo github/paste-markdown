@@ -49,10 +49,8 @@ function onPaste(event: ClipboardEvent) {
   const parser = new DOMParser()
   const doc = parser.parseFromString(textHTMLClean, 'text/html')
 
-  // Walk the tree as plain text except for supported elements. We will skip children of supported elements in convertToMarkdown.
-  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, node =>
-    node instanceof Text || getNodeMarkdownBuilder(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
-  )
+  // We cannot filter out unsupported elements here because then the walker will skip all of those elements' children
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT)
 
   const markdown = convertToMarkdown(plaintext, walker)
 
@@ -77,19 +75,13 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
     index++
     const text = currentNode.textContent ?? ''
 
-    // No need to transform whitespace
-    if (isEmptyString(text)) {
-      currentNode = walker.nextNode()
-      continue
-    }
-
     // Find the index where "text" is found in "markdown" _after_ "markdownIgnoreBeforeIndex"
     const markdownFoundIndex = markdown.indexOf(text, markdownIgnoreBeforeIndex)
 
     if (markdownFoundIndex >= 0) {
       const builder = getNodeMarkdownBuilder(currentNode)
 
-      if (builder) {
+      if (builder && !isEmptyString(text) /* No need to transform whitespace */) {
         const nodeMarkdown = builder()
         // Transform 'example link plus more text' into 'example [link](example link) plus more text'
         // Method: 'example [link](example link) plus more text' = 'example ' + '[link](example link)' + ' plus more text'
@@ -97,12 +89,11 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
           markdown.slice(0, markdownFoundIndex) + nodeMarkdown + markdown.slice(markdownFoundIndex + text.length)
         markdownIgnoreBeforeIndex = markdownFoundIndex + nodeMarkdown.length
 
-        // We cannot step inside supported nodes, even though it might be nice to have. This is because we've added
-        // the length of the node text to markdownIgnoreBeforeIndex, so we've already moved past this part of the
-        // Markdown.
+        // We've already added the length of the node text to markdownIgnoreBeforeIndex, so we've already moved past
+        // this part of the Markdown and cannot step inside this node.
         currentNode = walker.nextSibling()
         continue
-      } else {
+      } else if (currentNode instanceof Text) {
         markdownIgnoreBeforeIndex = markdownFoundIndex + text.length
       }
     }
