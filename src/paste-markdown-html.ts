@@ -165,6 +165,10 @@ function hasHTML(transfer: DataTransfer): boolean {
   return transfer.types.includes('text/html')
 }
 
+function stripLineBreaks(text: string): string {
+  return text.replace(/[\r\n]+/g, ' ')
+}
+
 /** Collapse whitespace in HTML to normalize it with the plain-text representation. Also convert nbsp into regular space. */
 function normalizeHtmlWhitespace(text: string): string {
   // The problem is that the HTML is not actually rendered onto the page, so the browser does not do the normal
@@ -186,7 +190,7 @@ function normalizeHtmlWhitespace(text: string): string {
 // Makes markdown link from a link element, avoiding special GitHub links
 function linkify(element: HTMLAnchorElement): string {
   // Inline tags can have hard linebreaks in HTML, but not in Markdown, so we must collapse them to one line
-  const label = element.textContent ?? ''
+  const label = stripLineBreaks(element.textContent ?? '')
 
   const url = element.href || ''
   let markdown = ''
@@ -206,7 +210,7 @@ function linkify(element: HTMLAnchorElement): string {
 }
 
 function simpleInlineTag(element: Node, markdownBuilder: (text: string) => string): string {
-  return markdownBuilder(element.textContent ?? '')
+  return markdownBuilder(stripLineBreaks(element.textContent ?? ''))
 }
 
 // Special GitHub links have either a hover card or certain class name
