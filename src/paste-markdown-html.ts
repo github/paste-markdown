@@ -61,47 +61,45 @@ function onPaste(event: ClipboardEvent) {
 }
 
 function convertToMarkdown(plaintext: string, htmlDocument: Document): string {
-  const walker = htmlDocument.createTreeWalker(
-    htmlDocument.body,
-    NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
-    node => {
-      // We don't supported nested Markdown nodes for now (ie, bold inside of links), so we only want supported nodes
-      // and not their descendants. FILTER_REJECT will skip the entire subtree, while FILTER_SKIP will only skip the node.
-      if (isChildOfSupportedMarkdownNode(node)) return NodeFilter.FILTER_REJECT
-      else if (isSupportedMarkdownNode(node)) return NodeFilter.FILTER_ACCEPT
-      else return NodeFilter.FILTER_SKIP
-    }
-  )
+  const nodes = iterateNodes(htmlDocument, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, node => {
+    // We don't supported nested Markdown nodes for now (ie, bold inside of links), so we only want supported nodes
+    // and not their descendants. FILTER_REJECT will skip the entire subtree, while FILTER_SKIP will only skip the node.
+    if (isChildOfSupportedMarkdownNode(node)) return NodeFilter.FILTER_REJECT
+    else if (isSupportedMarkdownNode(node)) return NodeFilter.FILTER_ACCEPT
+    else return NodeFilter.FILTER_SKIP
+  })
 
-  let currentNode = walker.firstChild()
   let markdown = plaintext
-  let markdownIgnoreBeforeIndex = 0
-  let index = 0
+  let markdownIndex = 0
+
+  let nodeCount = 0
   const NODE_LIMIT = 10000
 
-  while (currentNode && index < NODE_LIMIT) {
-    index++
-    const text = currentNode.textContent ?? ''
+  for (const node of nodes) {
+    if (++nodeCount > NODE_LIMIT) return plaintext
+
+    const text = node.textContent ?? ''
 
     // Find the index where "text" is found in "markdown" _after_ "markdownIgnoreBeforeIndex"
-    const markdownFoundIndex = markdown.indexOf(text, markdownIgnoreBeforeIndex)
-    const nodeToMarkdown = getNodeToMarkdown(currentNode)
+    const markdownFoundIndex = markdown.indexOf(text, markdownIndex)
+    const nodeToMarkdown = getNodeToMarkdown(node)
 
     if (markdownFoundIndex >= 0 && nodeToMarkdown !== undefined) {
       const nodeMarkdown = nodeToMarkdown()
 
       // Transform the slice of the plain text into the new markdown text
       markdown = markdown.slice(0, markdownFoundIndex) + nodeMarkdown + markdown.slice(markdownFoundIndex + text.length)
-      markdownIgnoreBeforeIndex = markdownFoundIndex + nodeMarkdown.length
+      markdownIndex = markdownFoundIndex + nodeMarkdown.length
     }
-
-    currentNode = walker.nextNode()
   }
 
-  // Unless we hit the node limit, we should have processed all nodes
-  return index === NODE_LIMIT ? plaintext : markdown
+  return markdown
 }
 
+/**
+ * Returns a function that converts the passed node to a Markdown string, or `undefined` if the passed node is not a
+ * supported Markdown node. Can be used to determine if a node is supported without having to transform it.
+ */
 function getNodeToMarkdown(node: Node): (() => string) | void {
   // Don't transform empty nodes
   if (node instanceof Text || isEmptyString(node.textContent ?? '')) return () => node.textContent ?? ''
@@ -132,8 +130,17 @@ function isSupportedMarkdownNode(node: Node): boolean {
   return getNodeToMarkdown(node) !== undefined
 }
 
+/** True if the node is a direct child of a supported Node. */
 function isChildOfSupportedMarkdownNode({parentNode}: Node): boolean {
   return parentNode !== null && isSupportedMarkdownNode(parentNode)
+}
+
+/** NodeIterator is not iterable, so this wrapper makes it usable in `for...of` loops. */
+function* iterateNodes(document: Document, whatToShow?: number, filter?: NodeFilter | null) {
+  const iterator = document.createNodeIterator(document.body, whatToShow, filter)
+
+  let node
+  while ((node = iterator.nextNode())) yield node
 }
 
 function isWithinUserMention(textarea: HTMLTextAreaElement): boolean {
