@@ -38,8 +38,8 @@ function onPaste(event: ClipboardEvent) {
   // Get the plaintext and html version of clipboard contents
   let plaintext = transfer.getData('text/plain')
   const textHTML = transfer.getData('text/html')
-  // Replace Unicode equivalent of "&nbsp" with a space
-  const textHTMLClean = textHTML.replace(/\u00A0/g, ' ').replace(/\uC2A0/g, ' ')
+
+  const textHTMLClean = normalizeHtmlWhitespace(textHTML)
   if (!textHTML) return
 
   plaintext = plaintext.trim()
@@ -161,13 +161,20 @@ function hasHTML(transfer: DataTransfer): boolean {
   return transfer.types.includes('text/html')
 }
 
-function stripLineBreaks(text: string): string {
-  return text.replace(/[\t\n\r ]+/g, ' ')
+/** Collapse whitespace in HTML to normalize it with the plain-text representation. Also convert nbsp into regular space. */
+function normalizeHtmlWhitespace(text: string): string {
+  // Collapse regular whitespace characters but preserve non-breaking spaces without collapsing
+  return text
+    .replace(/[\t\n\r ]+/g, ' ')
+    .trim()
+    .replace(/[\u00A0\uC2A0]/g, ' ')
 }
 
 // Makes markdown link from a link element, avoiding special GitHub links
 function linkify(element: HTMLAnchorElement): string {
-  const label = stripLineBreaks(element.textContent ?? '')
+  // Inline tags can have hard linebreaks in HTML, but not in Markdown, so we must collapse them to one line
+  const label = element.textContent ?? ''
+
   const url = element.href || ''
   let markdown = ''
 
@@ -186,8 +193,7 @@ function linkify(element: HTMLAnchorElement): string {
 }
 
 function simpleInlineTag(element: Node, markdownBuilder: (text: string) => string): string {
-  const text = stripLineBreaks(element.textContent ?? '')
-  return markdownBuilder(text)
+  return markdownBuilder(element.textContent ?? '')
 }
 
 // Special GitHub links have either a hover card or certain class name

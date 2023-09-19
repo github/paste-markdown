@@ -342,6 +342,16 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, markdownSentence)
     })
 
+    it('deals with link labels that contain `br` elements', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = '<a href="https://example.com/">foo<br />bar</a>'
+      const plaintextSentence = 'foo bar'
+      const markdownSentence = '[foo bar](https://example.com/)'
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
+
     it("doesn't render any markdown for html link without corresponding plaintext", function () {
       // eslint-disable-next-line github/unescaped-html-literal
       const link = `<meta charset='utf-8'><a href="https://github.com/monalisa/playground/issues/1">
