@@ -49,10 +49,7 @@ function onPaste(event: ClipboardEvent) {
   const parser = new DOMParser()
   const doc = parser.parseFromString(textHTMLClean, 'text/html')
 
-  // We cannot filter out unsupported elements here because then the walker will skip all of those elements' children
-  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT)
-
-  const markdown = convertToMarkdown(plaintext, walker)
+  const markdown = convertToMarkdown(plaintext, doc)
 
   // If no changes made by transforming
   if (markdown === plaintext) return
@@ -63,39 +60,39 @@ function onPaste(event: ClipboardEvent) {
   insertText(field, markdown)
 }
 
-function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
+function convertToMarkdown(plaintext: string, htmlDocument: Document): string {
+  const walker = htmlDocument.createTreeWalker(
+    htmlDocument.body,
+    NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+    node => {
+      // We don't supported nested Markdown nodes for now (ie, bold inside of links), so we only want supported nodes
+      // and not their descendants. FILTER_REJECT will skip the entire subtree, while FILTER_SKIP will only skip the node.
+      if (isChildOfSupportedMarkdownNode(node)) return NodeFilter.FILTER_REJECT
+      else if (isSupportedMarkdownNode(node)) return NodeFilter.FILTER_ACCEPT
+      else return NodeFilter.FILTER_SKIP
+    }
+  )
+
   let currentNode = walker.firstChild()
   let markdown = plaintext
   let markdownIgnoreBeforeIndex = 0
   let index = 0
   const NODE_LIMIT = 10000
 
-  // Walk through the DOM tree
   while (currentNode && index < NODE_LIMIT) {
     index++
     const text = currentNode.textContent ?? ''
 
     // Find the index where "text" is found in "markdown" _after_ "markdownIgnoreBeforeIndex"
     const markdownFoundIndex = markdown.indexOf(text, markdownIgnoreBeforeIndex)
+    const nodeToMarkdown = getNodeToMarkdown(currentNode)
 
-    if (markdownFoundIndex >= 0) {
-      const builder = getNodeMarkdownBuilder(currentNode)
+    if (markdownFoundIndex >= 0 && nodeToMarkdown !== undefined) {
+      const nodeMarkdown = nodeToMarkdown()
 
-      if (builder && !isEmptyString(text) /* No need to transform whitespace */) {
-        const nodeMarkdown = builder()
-        // Transform 'example link plus more text' into 'example [link](example link) plus more text'
-        // Method: 'example [link](example link) plus more text' = 'example ' + '[link](example link)' + ' plus more text'
-        markdown =
-          markdown.slice(0, markdownFoundIndex) + nodeMarkdown + markdown.slice(markdownFoundIndex + text.length)
-        markdownIgnoreBeforeIndex = markdownFoundIndex + nodeMarkdown.length
-
-        // We've already added the length of the node text to markdownIgnoreBeforeIndex, so we've already moved past
-        // this part of the Markdown and cannot step inside this node.
-        currentNode = walker.nextSibling()
-        continue
-      } else if (currentNode instanceof Text) {
-        markdownIgnoreBeforeIndex = markdownFoundIndex + text.length
-      }
+      // Transform the slice of the plain text into the new markdown text
+      markdown = markdown.slice(0, markdownFoundIndex) + nodeMarkdown + markdown.slice(markdownFoundIndex + text.length)
+      markdownIgnoreBeforeIndex = markdownFoundIndex + nodeMarkdown.length
     }
 
     currentNode = walker.nextNode()
@@ -105,7 +102,10 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
   return index === NODE_LIMIT ? plaintext : markdown
 }
 
-function getNodeMarkdownBuilder(node: Node): (() => string) | void {
+function getNodeToMarkdown(node: Node): (() => string) | void {
+  // Don't transform empty nodes
+  if (node instanceof Text || isEmptyString(node.textContent ?? '')) return () => node.textContent ?? ''
+
   if (node instanceof HTMLAnchorElement) return () => linkify(node)
 
   switch (node.nodeName) {
@@ -126,6 +126,14 @@ function getNodeMarkdownBuilder(node: Node): (() => string) | void {
     case 'SUB':
       return () => simpleInlineTag(node, markdownSubscript)
   }
+}
+
+function isSupportedMarkdownNode(node: Node): boolean {
+  return getNodeToMarkdown(node) !== undefined
+}
+
+function isChildOfSupportedMarkdownNode({parentNode}: Node): boolean {
+  return parentNode !== null && isSupportedMarkdownNode(parentNode)
 }
 
 function isWithinUserMention(textarea: HTMLTextAreaElement): boolean {
