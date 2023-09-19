@@ -99,8 +99,6 @@ function convertToMarkdown(plaintext: string, htmlDocument: Document): string {
       // Transform the slice of the plain text into the new markdown text
       markdown = markdown.slice(0, markdownFoundIndex) + nodeMarkdown + markdown.slice(markdownFoundIndex + text.length)
       markdownIndex = markdownFoundIndex + nodeMarkdown.length
-    } else {
-      markdownIndex += text.length
     }
   }
 
