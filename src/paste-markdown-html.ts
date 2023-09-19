@@ -136,8 +136,8 @@ function isChildOfSupportedMarkdownNode({parentNode}: Node): boolean {
 }
 
 /** NodeIterator is not iterable, so this wrapper makes it usable in `for...of` loops. */
-function* iterateNodes(document: Document, whatToShow?: number, filter?: NodeFilter | null) {
-  const iterator = document.createNodeIterator(document.body, whatToShow, filter)
+function* iterateNodes(root: Node, whatToShow?: number, filter?: NodeFilter | null) {
+  const iterator = (root.ownerDocument ?? document).createNodeIterator(root, whatToShow, filter)
 
   let node
   while ((node = iterator.nextNode())) yield node
