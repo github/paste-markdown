@@ -65,13 +65,18 @@ function onPaste(event: ClipboardEvent) {
 }
 
 function convertToMarkdown(plaintext: string, htmlDocument: Document): string {
-  const nodes = iterateNodes(htmlDocument, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, node => {
-    // We don't supported nested Markdown nodes for now (ie, bold inside of links), so we only want supported nodes
-    // and not their descendants. FILTER_REJECT will skip the entire subtree, while FILTER_SKIP will only skip the node.
-    if (isChildOfSupportedMarkdownNode(node)) return NodeFilter.FILTER_REJECT
-    else if (isSupportedMarkdownNode(node)) return NodeFilter.FILTER_ACCEPT
-    else return NodeFilter.FILTER_SKIP
-  })
+  const nodes = iterateNodeTree(
+    htmlDocument,
+    htmlDocument.body,
+    NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+    node => {
+      // We don't supported nested Markdown nodes for now (ie, bold inside of links), so we only want supported nodes
+      // and not their descendants. FILTER_REJECT will skip the entire subtree, while FILTER_SKIP will only skip the node.
+      if (isChildOfSupportedMarkdownNode(node)) return NodeFilter.FILTER_REJECT
+      else if (isSupportedMarkdownNode(node)) return NodeFilter.FILTER_ACCEPT
+      else return NodeFilter.FILTER_SKIP
+    }
+  )
 
   let markdown = plaintext
   let markdownIndex = 0
@@ -139,12 +144,12 @@ function isChildOfSupportedMarkdownNode({parentNode}: Node): boolean {
   return parentNode !== null && isSupportedMarkdownNode(parentNode)
 }
 
-/** NodeIterator is not iterable, so this wrapper makes it usable in `for...of` loops. */
-function* iterateNodes(root: Node, whatToShow?: number, filter?: NodeFilter | null) {
-  const iterator = (root.ownerDocument ?? document).createNodeIterator(root, whatToShow, filter)
+/** `TreeWalker` is not iterable, so this wrapper makes it usable in `for...of` loops. */
+function* iterateNodeTree(document: Document, root: Node, whatToShow?: number, filter?: NodeFilter | null) {
+  const tree = document.createTreeWalker(root, whatToShow, filter)
 
   let node
-  while ((node = iterator.nextNode())) yield node
+  while ((node = tree.nextNode())) yield node
 }
 
 function isWithinUserMention(textarea: HTMLTextAreaElement): boolean {
