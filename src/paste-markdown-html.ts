@@ -87,7 +87,7 @@ function convertToMarkdown(plaintext: string, htmlDocument: Document): string {
   for (const node of nodes) {
     if (++nodeCount > NODE_LIMIT) return plaintext
 
-    const text = node.textContent ?? ''
+    const text = node.textContent?.trim() ?? ''
 
     // Find the index where "text" is found in "markdown" _after_ "markdownIgnoreBeforeIndex"
     const markdownFoundIndex = markdown.indexOf(text, markdownIndex)
@@ -99,6 +99,8 @@ function convertToMarkdown(plaintext: string, htmlDocument: Document): string {
       // Transform the slice of the plain text into the new markdown text
       markdown = markdown.slice(0, markdownFoundIndex) + nodeMarkdown + markdown.slice(markdownFoundIndex + text.length)
       markdownIndex = markdownFoundIndex + nodeMarkdown.length
+    } else {
+      markdownIndex += text.length
     }
   }
 
