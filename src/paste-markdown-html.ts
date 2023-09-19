@@ -49,6 +49,10 @@ function onPaste(event: ClipboardEvent) {
   const parser = new DOMParser()
   const doc = parser.parseFromString(textHTMLClean, 'text/html')
 
+  // Replace all line-break elements with line break characters that will appear in `textContent`
+  for (const br of doc.querySelectorAll('br')) br.replaceWith('\n')
+  doc.normalize()
+
   const markdown = convertToMarkdown(plaintext, doc)
 
   // If no changes made by transforming
@@ -163,11 +167,20 @@ function hasHTML(transfer: DataTransfer): boolean {
 
 /** Collapse whitespace in HTML to normalize it with the plain-text representation. Also convert nbsp into regular space. */
 function normalizeHtmlWhitespace(text: string): string {
-  // Collapse regular whitespace characters but preserve non-breaking spaces without collapsing
-  return text
-    .replace(/[\t\n\r ]+/g, ' ')
-    .trim()
-    .replace(/[\u00A0\uC2A0]/g, ' ')
+  // The problem is that the HTML is not actually rendered onto the page, so the browser does not do the normal
+  // whitespace normalizing. This means textContent and innerText both just return the raw text of the node, ignoring
+  // `br` tags. So to be able to compare the parsed HTML with the plain-text variant, we need to make the whitespace
+  // in the HTML match what it would look like when rendered.
+
+  // We don't need to handle block breaks like p tags since we will work across those as separate nodes.
+  return (
+    text
+      // Collapse whitespace that would be collapsed if rendered
+      .replace(/[\t\n\r ]+/g, ' ')
+      // Replace non-breaking space (nbsp) with regular space
+      .replace(/[\u00A0\uC2A0]/g, ' ')
+      .trim()
+  )
 }
 
 // Makes markdown link from a link element, avoiding special GitHub links
