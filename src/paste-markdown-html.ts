@@ -166,7 +166,7 @@ function hasHTML(transfer: DataTransfer): boolean {
 }
 
 function stripLineBreaks(text: string): string {
-  return text.replace(/[\r\n]+/g, ' ')
+  return text.replace(/[\r\n]+/g, ' ').trim()
 }
 
 /** Collapse whitespace in HTML to normalize it with the plain-text representation. Also convert nbsp into regular space. */
