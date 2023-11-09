@@ -123,7 +123,7 @@ function linkify(element: HTMLAnchorElement, label: string): string {
   let markdown = ''
 
   // Don't linkify user mentions like "@octocat"
-  if (isUserMention(element)) {
+  if (isUserMention(element) || isTeamMention(element)) {
     markdown = label
     // Don't linkify things like "#123" or commit comparisons
   } else if (isSpecialLink(element) || areEqualLinks(url, label)) {
@@ -155,4 +155,9 @@ function areEqualLinks(link1: string, link2: string) {
 // User mentions have a "@" and a hovercard attribute of type "user"
 function isUserMention(link: HTMLAnchorElement): boolean {
   return link.textContent?.slice(0, 1) === '@' && link.getAttribute('data-hovercard-type') === 'user'
+}
+
+// Team mentions have a "@" and a hovercard attribute of type "team"
+function isTeamMention(link: HTMLAnchorElement): boolean {
+  return link.textContent?.slice(0, 1) === '@' && link.getAttribute('data-hovercard-type') === 'team'
 }
