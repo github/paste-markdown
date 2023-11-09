@@ -320,6 +320,15 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, '')
     })
 
+    it("doesn't render any markdown for GitHub team handles", function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const link = `<meta charset='utf-8'><a href="https://github.com/orgs/github/teams/octocats" data-hovercard-type="team">@github/octocats</a>`
+      const plaintextLink = '@github/octocats'
+
+      paste(textarea, {'text/html': link, 'text/plain': plaintextLink})
+      assert.equal(textarea.value, '')
+    })
+
     it('retains urls of special GitHub links', function () {
       const href = 'https://github.com/octocat/repo/issues/1'
       // eslint-disable-next-line github/unescaped-html-literal
