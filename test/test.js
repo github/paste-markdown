@@ -382,6 +382,66 @@ describe('paste-markdown', function () {
       paste(textarea, data)
       assert.include(textarea.value, tableMarkdown)
     })
+
+    it('pastes markdown with links correctly when identical labels are present', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'><span>
+      foo bar baz <a href="https://www.abcxyz.com/">bar</a></span>`
+      const plaintextSentence = 'foo bar baz bar'
+      const markdownSentence = 'foo bar baz [bar](https://www.abcxyz.com/)'
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
+
+    it('pastes markdown with line breaks and links correctly when identical labels are present', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'>
+      <p>foo bar
+          bar baz <a href="https://www.abcxyz.org/">bar</a> </p>
+          <p>baz <a href="https://www.abcxyz.com/">baz</a> foo</p>`
+      const plaintextSentence = 'foo bar bar baz bar baz baz foo'
+      const markdownSentence = 'foo bar bar baz [bar](https://www.abcxyz.org/) baz [baz](https://www.abcxyz.com/) foo'
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
+
+    it('pastes markdown with multiple links and labels correctly', function () {
+      // eslint-disable-next-line i18n-text/no-en
+      const commonSentence = 'Great example for example resources for developers'
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'><span>
+      ${commonSentence}: <a href="https://www.example.com/">example</a> and <a href="https://www.example.com/">example</a>.</span>`
+      const plaintextSentence = `${commonSentence}: example and example.`
+      const markdownSentence = `${commonSentence}: [example](https://www.example.com/) and [example](https://www.example.com/).`
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
+
+    it('pastes markdown with link labels that contains special characters in html', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'>
+      <p>foo&bar <a href="https://www.abcxyz.org/">foo bar</a> <a href="https://example.com/?q=foo&bar=baz">foo&bar</a></p>`
+      const plaintextSentence = 'foo&bar foo bar foo&bar'
+      const markdownSentence =
+        'foo&bar [foo bar](https://www.abcxyz.org/) [foo&bar](https://example.com/?q=foo&bar=baz)'
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
+
+    it('pastes markdown with link labels that contains emojis in html', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'>
+      <p>foo bar <a href="https://www.abcxyz.org/">foo</a> bar foo <a href="https://example.com/">🚀 bar 🚀</a></p>`
+      const plaintextSentence = 'foo bar foo bar foo 🚀 bar 🚀'
+      const markdownSentence = 'foo bar [foo](https://www.abcxyz.org/) bar foo [🚀 bar 🚀](https://example.com/)'
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
   })
 })
 
