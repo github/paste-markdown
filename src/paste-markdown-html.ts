@@ -37,8 +37,7 @@ function onPaste(event: ClipboardEvent) {
   // Generate DOM tree from HTML string
   const parser = new DOMParser()
   const doc = parser.parseFromString(textHTMLClean, 'text/html')
-  const whatToShow = navigator.userAgent.indexOf('Firefox') > -1 ? NodeFilter.SHOW_ALL : NodeFilter.SHOW_ELEMENT
-  const walker = doc.createTreeWalker(doc.body, whatToShow, node =>
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, node =>
     node.parentNode && isLink(node.parentNode) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
   )
 
@@ -63,14 +62,19 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
   // Walk through the DOM tree
   while (currentNode && index < NODE_LIMIT) {
     index++
-    const currentNodeText =
-      navigator.userAgent.indexOf('Firefox') > -1 ? (currentNode as Text) : (currentNode.firstChild as Text)
     const text = isLink(currentNode)
       ? (currentNode.textContent || '').replace(/[\t\n\r ]+/g, ' ')
-      : currentNodeText?.wholeText || ''
+      : (currentNode as Text)?.wholeText || ''
 
     // No need to transform whitespace
     if (isEmptyString(text)) {
+      currentNode = walker.nextNode()
+      continue
+    }
+
+    // update value of markdownIgnoreBeforeIndex with current index if the current node is not a link
+    if (!isLink(currentNode)) {
+      markdownIgnoreBeforeIndex += text.replace(/[\t\n\r ]+/g, ' ').trimStart().length
       currentNode = walker.nextNode()
       continue
     }
@@ -86,8 +90,6 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
         markdown =
           markdown.slice(0, markdownFoundIndex) + markdownLink + markdown.slice(markdownFoundIndex + text.length)
         markdownIgnoreBeforeIndex = markdownFoundIndex + markdownLink.length
-      } else {
-        markdownIgnoreBeforeIndex = markdownFoundIndex + text.length
       }
     }
 
