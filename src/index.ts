@@ -3,7 +3,7 @@ import {install as installImageLink, uninstall as uninstallImageLink} from './pa
 import {install as installLink, uninstall as uninstallLink} from './paste-markdown-link'
 import {
   installAround as installSkipFormatting,
-  uninstall as uninstallSkipFormatting
+  uninstall as uninstallSkipFormatting,
 } from './paste-keyboard-shortcut-helper'
 import {install as installTable, uninstall as uninstallTable} from './paste-markdown-table'
 import {install as installText, uninstall as uninstallText} from './paste-markdown-text'
@@ -23,7 +23,7 @@ function subscribe(el: HTMLElement, optionConfig?: OptionConfig): Subscription {
       uninstallImageLink(el)
       uninstallLink(el)
       uninstallText(el)
-    }
+    },
   }
 }
 
@@ -38,5 +38,5 @@ export {
   uninstallImageLink,
   uninstallTable,
   uninstallLink,
-  uninstallText
+  uninstallText,
 }
