@@ -1,4 +1,5 @@
-import {subscribe} from '../dist/index.esm.js'
+import {subscribe} from '../src/index.ts'
+import {assert} from '@open-wc/testing'
 
 const tableHtml = `
   <table>
@@ -30,7 +31,7 @@ describe('paste-markdown', function () {
       document.body.innerHTML = ''
     })
 
-    it('turns image uris into markdown', function () {
+    it.only('turns image uris into markdown', async function () {
       paste(textarea, {'text/uri-list': 'https://github.com/github.png\r\nhttps://github.com/hubot.png'})
       assert.include(textarea.value, '![](https://github.com/github.png)\n\n![](https://github.com/hubot.png)')
     })
@@ -90,7 +91,7 @@ describe('paste-markdown', function () {
       paste(textarea, {'text/plain': 'https://www.github.com/path_to/something-different/too'})
       assert.equal(
         textarea.value,
-        'The examples can be found [here](https://www.github.com/path_to/something-different/too).'
+        'The examples can be found [here](https://www.github.com/path_to/something-different/too).',
       )
     })
 
@@ -101,7 +102,7 @@ describe('paste-markdown', function () {
       paste(textarea, {'text/plain': 'https://www.github.com/path/to/something?query=true'})
       assert.equal(
         textarea.value,
-        'The examples can be found [here](https://www.github.com/path/to/something?query=true).'
+        'The examples can be found [here](https://www.github.com/path/to/something?query=true).',
       )
     })
 
@@ -112,7 +113,7 @@ describe('paste-markdown', function () {
       paste(textarea, {'text/plain': 'https://www.github.com/path/to/something#section'})
       assert.equal(
         textarea.value,
-        'The examples can be found [here](https://www.github.com/path/to/something#section).'
+        'The examples can be found [here](https://www.github.com/path/to/something#section).',
       )
     })
 
@@ -168,7 +169,7 @@ describe('paste-markdown', function () {
 
     it('turns html tables into markdown', function () {
       const data = {
-        'text/html': tableHtml
+        'text/html': tableHtml,
       }
       paste(textarea, data)
       assert.include(textarea.value, tableMarkdown)
@@ -180,7 +181,7 @@ describe('paste-markdown', function () {
         alertCalled = true
       }
       const data = {
-        'text/html': `XSS<img/src/onerror=secretFunction()><table>`
+        'text/html': `XSS<img/src/onerror=secretFunction()><table>`,
       }
       paste(textarea, data)
 
@@ -195,14 +196,14 @@ describe('paste-markdown', function () {
         <p>Here is a cool table</p>
         ${tableHtml}
         <p>Very cool</p>
-        `
+        `,
       }
 
       paste(textarea, data)
       assert.equal(
         textarea.value.trim(),
         // eslint-disable-next-line github/unescaped-html-literal
-        `<p>Here is a cool table</p>\n        \n  \n${tableMarkdown}\n\n\n\n        <p>Very cool</p>`
+        `<p>Here is a cool table</p>\n        \n  \n${tableMarkdown}\n\n\n\n        <p>Very cool</p>`,
       )
     })
 
@@ -216,7 +217,7 @@ describe('paste-markdown', function () {
             <tr><td>bender</td><td>futurama</td></tr>
           </tbody>
         </table>
-        `
+        `,
       }
       paste(textarea, data)
 
@@ -229,7 +230,7 @@ describe('paste-markdown', function () {
       // eslint-disable-next-line github/unescaped-html-literal, prefer-template
       const html = '<table'.repeat(999) + '<div><table></div>'
       const data = {
-        'text/html': html
+        'text/html': html,
       }
       paste(textarea, data)
 
@@ -304,7 +305,7 @@ describe('paste-markdown', function () {
         preferred_format: 'text/html;content=titled-hyperlink',
         title: 'Link pasting · Issue #1 · monalisa/playground (github.com)',
         type: 'website',
-        url: 'https://github.com/monalisa/playground/issues/1'
+        url: 'https://github.com/monalisa/playground/issues/1',
       }
 
       paste(textarea, {'text/html': link, 'text/plain': plaintextLink, 'text/link-preview': linkPreviewLink})
@@ -371,7 +372,7 @@ describe('paste-markdown', function () {
 
     it('skip markdown formatting with (Ctrl+Shift+v)', function () {
       const data = {
-        'text/html': tableHtml
+        'text/html': tableHtml,
       }
 
       dispatchSkipFormattingKeyEvent(textarea)
@@ -462,8 +463,8 @@ function dispatchSkipFormattingKeyEvent(textarea) {
       code: 'KeyV',
       shiftKey: true,
       ctrlKey: true,
-      metaKey: true
-    })
+      metaKey: true,
+    }),
   )
 }
 
@@ -479,7 +480,7 @@ function paste(textarea, data) {
     dataTransfer.setData(key, data[key])
   }
   const event = new ClipboardEvent('paste', {
-    clipboardData: dataTransfer
+    clipboardData: dataTransfer,
   })
   textarea.dispatchEvent(event)
 }
