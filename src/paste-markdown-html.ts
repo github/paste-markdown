@@ -38,7 +38,7 @@ function onPaste(event: ClipboardEvent) {
   const parser = new DOMParser()
   const doc = parser.parseFromString(textHTMLClean, 'text/html')
   const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, node =>
-    node.parentNode && isLink(node.parentNode) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+    node.parentNode && isLink(node.parentNode) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
   )
 
   const markdown = convertToMarkdown(plaintext, walker)
