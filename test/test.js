@@ -31,7 +31,7 @@ describe('paste-markdown', function () {
       document.body.innerHTML = ''
     })
 
-    it.only('turns image uris into markdown', async function () {
+    it('turns image uris into markdown', async function () {
       paste(textarea, {'text/uri-list': 'https://github.com/github.png\r\nhttps://github.com/hubot.png'})
       assert.include(textarea.value, '![](https://github.com/github.png)\n\n![](https://github.com/hubot.png)')
     })
