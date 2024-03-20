@@ -83,14 +83,11 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
     const markdownFoundIndex = markdown.indexOf(text, markdownIgnoreBeforeIndex)
 
     if (markdownFoundIndex >= 0) {
-      if (isLink(currentNode)) {
-        const markdownLink = linkify(currentNode, text)
-        // Transform 'example link plus more text' into 'example [link](example link) plus more text'
-        // Method: 'example [link](example link) plus more text' = 'example ' + '[link](example link)' + ' plus more text'
-        markdown =
-          markdown.slice(0, markdownFoundIndex) + markdownLink + markdown.slice(markdownFoundIndex + text.length)
-        markdownIgnoreBeforeIndex = markdownFoundIndex + markdownLink.length
-      }
+      const markdownLink = linkify(currentNode, text)
+      // Transform 'example link plus more text' into 'example [link](example link) plus more text'
+      // Method: 'example [link](example link) plus more text' = 'example ' + '[link](example link)' + ' plus more text'
+      markdown = markdown.slice(0, markdownFoundIndex) + markdownLink + markdown.slice(markdownFoundIndex + text.length)
+      markdownIgnoreBeforeIndex = markdownFoundIndex + markdownLink.length
     }
 
     currentNode = walker.nextNode()

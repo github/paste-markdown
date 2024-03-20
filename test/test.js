@@ -358,45 +358,6 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, markdownSentence)
     })
 
-    it('finds the right link when identical labels are present chrome and edge', function () {
-      // eslint-disable-next-line github/unescaped-html-literal
-      const sentence = `<meta charset='utf-8'>
-      <p>foo bar<br>bar<span> </span><a href="https://www.abcxyz.org/">bar</a></p><p>bar<span> </span><a href="https://www.abcxyz.com/">bar</a><span> </span>foo</p>`
-
-      const markdownSentence = `foo bar
-bar [bar](https://www.abcxyz.org/)
-
-bar [bar](https://www.abcxyz.com/) foo`
-
-      const plaintextSentence = `foo bar
-bar bar
-
-bar bar foo`
-
-      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
-      assert.equal(textarea.value, markdownSentence)
-    })
-
-    it('finds the right link when identical labels are present firefox', function () {
-      // eslint-disable-next-line github/unescaped-html-literal
-      const sentence = `<meta charset='utf-8'>
-      <div><div><p>foo bar<br>
-      bar <a href="https://www.abcxyz.org/">bar</a></p>
-      <p>bar <a href="https://www.abcxyz.com/">bar</a> foo</p></div></div>`
-      const markdownSentence = `foo bar
-bar [bar](https://www.abcxyz.org/)
-
-bar [bar](https://www.abcxyz.com/) foo`
-
-      const plaintextSentence = `foo bar
-bar bar
-
-bar bar foo`
-
-      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
-      assert.equal(textarea.value, markdownSentence)
-    })
-
     it('pastes markdown with links correctly when identical labels are present', function () {
       // eslint-disable-next-line github/unescaped-html-literal
       const sentence = `<meta charset='utf-8'><span>
@@ -440,6 +401,45 @@ bar bar foo`
       </span><a href="https://example.com/">example</a>`
       const plaintextSentence = 'example example'
       const markdownSentence = 'example [example](https://example.com/)'
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
+
+    it('finds the right link when identical labels are present chrome and edge', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'>
+      <p>foo bar<br>bar<span> </span><a href="https://www.abcxyz.org/">bar</a></p><p>bar<span> </span><a href="https://www.abcxyz.com/">bar</a><span> </span>foo</p>`
+
+      const markdownSentence = `foo bar
+bar [bar](https://www.abcxyz.org/)
+
+bar [bar](https://www.abcxyz.com/) foo`
+
+      const plaintextSentence = `foo bar
+bar bar
+
+bar bar foo`
+
+      paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
+      assert.equal(textarea.value, markdownSentence)
+    })
+
+    it('finds the right link when identical labels are present firefox', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const sentence = `<meta charset='utf-8'>
+      <div><div><p>foo bar<br>
+      bar <a href="https://www.abcxyz.org/">bar</a></p>
+      <p>bar <a href="https://www.abcxyz.com/">bar</a> foo</p></div></div>`
+      const markdownSentence = `foo bar
+bar [bar](https://www.abcxyz.org/)
+
+bar [bar](https://www.abcxyz.com/) foo`
+
+      const plaintextSentence = `foo bar
+bar bar
+
+bar bar foo`
 
       paste(textarea, {'text/html': sentence, 'text/plain': plaintextSentence})
       assert.equal(textarea.value, markdownSentence)
