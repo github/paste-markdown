@@ -1,6 +1,5 @@
-/* @flow strict */
-import {insertText} from './text'
-import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
+import {insertText} from './text.js'
+import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper.js'
 
 export function install(el: HTMLElement): void {
   el.addEventListener('dragover', onDragover)

@@ -1,6 +1,9 @@
 {
   "root": true,
   "extends": ["plugin:github/browser", "plugin:github/recommended", "plugin:github/typescript"],
+  "rules": {
+    "import/no-unresolved": "off"
+  },
   "overrides": [
     {
       "files": "*.js",
@@ -11,7 +14,6 @@
       "files": "test/test.js",
       "rules": {
         "import/extensions": "off",
-        "import/no-unresolved": "off",
         "github/no-inner-html": "off",
         "eslint-comments/no-use": "off"
       }

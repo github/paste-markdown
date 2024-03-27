@@ -1,6 +1,6 @@
-import {OptionConfig} from './option-config'
-import {insertText} from './text'
-import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper'
+import {OptionConfig} from './option-config.js'
+import {insertText} from './text.js'
+import {shouldSkipFormatting} from './paste-keyboard-shortcut-helper.js'
 
 const pasteLinkAsPlainTextOverSelectedTextMap = new WeakMap<HTMLElement, boolean>()
 
