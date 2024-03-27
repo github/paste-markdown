@@ -1,12 +1,12 @@
-import {install as installHTML, uninstall as uninstallHTML} from './paste-markdown-html'
-import {install as installImageLink, uninstall as uninstallImageLink} from './paste-markdown-image-link'
-import {install as installLink, uninstall as uninstallLink} from './paste-markdown-link'
+import {install as installHTML, uninstall as uninstallHTML} from './paste-markdown-html.js'
+import {install as installImageLink, uninstall as uninstallImageLink} from './paste-markdown-image-link.js'
+import {install as installLink, uninstall as uninstallLink} from './paste-markdown-link.js'
 import {
   installAround as installSkipFormatting,
   uninstall as uninstallSkipFormatting,
-} from './paste-keyboard-shortcut-helper'
-import {install as installTable, uninstall as uninstallTable} from './paste-markdown-table'
-import {install as installText, uninstall as uninstallText} from './paste-markdown-text'
+} from './paste-keyboard-shortcut-helper.js'
+import {install as installTable, uninstall as uninstallTable} from './paste-markdown-table.js'
+import {install as installText, uninstall as uninstallText} from './paste-markdown-text.js'
 import {OptionConfig} from './option-config'
 
 interface Subscription {

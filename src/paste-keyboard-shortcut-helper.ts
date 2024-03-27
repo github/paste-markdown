@@ -1,4 +1,4 @@
-import {OptionConfig} from './option-config'
+import {OptionConfig} from './option-config.js'
 
 const skipFormattingMap = new WeakMap<HTMLElement, boolean>()
 
