@@ -23,7 +23,7 @@ jobs:
       - run: npm version ${TAG_NAME} --git-tag-version=false
         env:
           TAG_NAME: ${{ github.event.release.tag_name }}
-      - run: npm --ignore-scripts publish --provenance
+      - run: npm publish --provenance
   publish-registry:
     runs-on: ubuntu-latest
     permissions:
@@ -47,4 +47,4 @@ jobs:
         env:
           TAG_NAME: ${{ github.event.release.tag_name }}
       - name: Publish to GHPR
-        run: npm --ignore-scripts publish --provenance
+        run: npm publish --provenance
