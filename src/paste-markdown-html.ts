@@ -79,15 +79,15 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
       continue
     }
 
-    // Find the index where "text" is found in "markdown" _after_ "markdownIgnoreBeforeIndex"
-    const markdownFoundIndex = markdown.indexOf(text, markdownIgnoreBeforeIndex)
+    // Find the part of "markdown" this link replaces, at or after "markdownIgnoreBeforeIndex"
+    const span = findLinkSpan(markdown, text, markdownIgnoreBeforeIndex, currentNode.href)
 
-    if (markdownFoundIndex >= 0) {
+    if (span) {
       const markdownLink = linkify(currentNode, text)
       // Transform 'example link plus more text' into 'example [link](example link) plus more text'
       // Method: 'example [link](example link) plus more text' = 'example ' + '[link](example link)' + ' plus more text'
-      markdown = markdown.slice(0, markdownFoundIndex) + markdownLink + markdown.slice(markdownFoundIndex + text.length)
-      markdownIgnoreBeforeIndex = markdownFoundIndex + markdownLink.length
+      markdown = markdown.slice(0, span.index) + markdownLink + markdown.slice(span.index + span.length)
+      markdownIgnoreBeforeIndex = span.index + markdownLink.length
     }
 
     currentNode = walker.nextNode()
@@ -95,6 +95,52 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
 
   // Unless we hit the node limit, we should have processed all nodes
   return index === NODE_LIMIT ? plaintext : markdown
+}
+
+interface LinkSpan {
+  index: number
+  length: number
+}
+
+function isURL(text: string): boolean {
+  return /^[a-z][a-z\d+.-]*:\/\//i.test(text)
+}
+
+// The whitespace-delimited token of "markdown" containing "index".
+function tokenAt(markdown: string, index: number): LinkSpan {
+  let start = index
+  let end = index
+  while (start > 0 && !/\s/.test(markdown[start - 1])) start--
+  while (end < markdown.length && !/\s/.test(markdown[end])) end++
+  return {index: start, length: end - start}
+}
+
+// Which part of the plaintext this link replaces. Usually the label's own occurrence — but a label
+// can be a shortened rendering of the URL itself, which is how a link reaches the clipboard from
+// many native apps and clipboard tools: `text/plain` is the URL, and `text/html` is an anchor
+// labelled with part of it. The label's only occurrence is then inside the URL, and splicing there
+// plants a `[` in the middle of it:
+//
+//   https://github.com/owner/[repo/blob/main/a.js](https://github.com/owner/repo/blob/main/a.js)
+//
+// Such a label describes the whole URL, so the link replaces the whole token instead.
+function findLinkSpan(markdown: string, label: string, from: number, href: string): LinkSpan | null {
+  const index = markdown.indexOf(label, from)
+  if (index < 0) return null
+
+  const token = tokenAt(markdown, index)
+  if (token.length === label.length) return {index, length: label.length}
+
+  const tokenText = markdown.slice(token.index, token.index + token.length)
+  if (areEqualLinks(href, tokenText)) return token
+
+  // Splicing inside a URL is never right, so a label found inside one that is not this link's own
+  // href leaves the paste alone rather than corrupting it.
+  if (isURL(tokenText)) return null
+
+  // The label abuts other text, as `<a href="…">foo</a>bar` pasted alongside `foobar` does. Its own
+  // occurrence is the right span.
+  return {index, length: label.length}
 }
 
 function isWithinUserMention(textarea: HTMLTextAreaElement): boolean {
