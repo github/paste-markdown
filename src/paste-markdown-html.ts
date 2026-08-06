@@ -102,7 +102,10 @@ interface LinkSpan {
   length: number
 }
 
-function isURL(text: string): boolean {
+// Whether text starts with a scheme. Deliberately laxer than paste-markdown-link.ts's `isURL`,
+// which requires the whole string to round-trip through `new URL()`: the question here is whether
+// splicing into this text would corrupt a URL, not whether it is a valid one.
+function looksLikeURL(text: string): boolean {
   return /^[a-z][a-z\d+.-]*:\/\//i.test(text)
 }
 
@@ -115,31 +118,27 @@ function tokenAt(markdown: string, index: number): LinkSpan {
   return {index: start, length: end - start}
 }
 
-// Which part of the plaintext this link replaces. Usually the label's own occurrence — but a label
-// can be a shortened rendering of the URL itself, which is how a link reaches the clipboard from
-// many native apps and clipboard tools: `text/plain` is the URL, and `text/html` is an anchor
-// labelled with part of it. The label's only occurrence is then inside the URL, and splicing there
+// Which part of the plaintext this link replaces. Usually the label's own occurrence, but a label
+// that is a shortened rendering of its own URL occurs only inside that URL, and splicing there
 // plants a `[` in the middle of it:
 //
 //   https://github.com/owner/[repo/blob/main/a.js](https://github.com/owner/repo/blob/main/a.js)
-//
-// Such a label describes the whole URL, so the link replaces the whole token instead.
 function findLinkSpan(markdown: string, label: string, from: number, href: string): LinkSpan | null {
   const index = markdown.indexOf(label, from)
   if (index < 0) return null
 
   const token = tokenAt(markdown, index)
-  if (token.length === label.length) return {index, length: label.length}
+  if (token.length !== label.length) {
+    const tokenText = markdown.slice(token.index, token.index + token.length)
+    // The label describes this whole URL, so the link replaces the whole URL.
+    if (areEqualLinks(href, tokenText)) return token
+    // Splicing inside a URL is never right, so a label inside one that is not this link's own href
+    // leaves the paste alone rather than corrupting it.
+    if (looksLikeURL(tokenText)) return null
+  }
 
-  const tokenText = markdown.slice(token.index, token.index + token.length)
-  if (areEqualLinks(href, tokenText)) return token
-
-  // Splicing inside a URL is never right, so a label found inside one that is not this link's own
-  // href leaves the paste alone rather than corrupting it.
-  if (isURL(tokenText)) return null
-
-  // The label abuts other text, as `<a href="…">foo</a>bar` pasted alongside `foobar` does. Its own
-  // occurrence is the right span.
+  // The label is the whole token, or abuts other text as `<a href="…">foo</a>bar` does alongside
+  // `foobar`. Its own occurrence is the right span.
   return {index, length: label.length}
 }
 
