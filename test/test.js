@@ -383,6 +383,26 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, markdownLink)
     })
 
+    it('links a url the surrounding prose wraps in punctuation', function () {
+      const url = 'https://github.com/owner/repo/blob/main/a.js#L7'
+      // eslint-disable-next-line github/unescaped-html-literal
+      const link = `<meta charset='utf-8'>(<a href="${url}">repo/blob/main/a.js#L7</a>)`
+      const markdownLink = `([repo/blob/main/a.js#L7](${url}))`
+
+      paste(textarea, {'text/html': link, 'text/plain': `(${url})`})
+      assert.equal(textarea.value, markdownLink)
+    })
+
+    it('links a url that ends in a bracket of its own', function () {
+      const url = 'https://en.wikipedia.org/wiki/Ruby_(programming_language)'
+      // eslint-disable-next-line github/unescaped-html-literal
+      const link = `<meta charset='utf-8'><a href="${url}">wiki/Ruby_(programming_language)</a>`
+      const markdownLink = `[wiki/Ruby_(programming_language)](${url})`
+
+      paste(textarea, {'text/html': link, 'text/plain': url})
+      assert.equal(textarea.value, markdownLink)
+    })
+
     it("doesn't splice a link inside a url that is not its own href", function () {
       // eslint-disable-next-line github/unescaped-html-literal
       const link = `<meta charset='utf-8'><a href="https://example.com/">github.com/owner</a>`
