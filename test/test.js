@@ -393,6 +393,16 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, markdownLink)
     })
 
+    it('links a url the sentence ends right after', function () {
+      const url = 'https://github.com/owner/repo/blob/main/a.js#L7'
+      // eslint-disable-next-line github/unescaped-html-literal
+      const link = `<meta charset='utf-8'><a href="${url}">repo/blob/main/a.js#L7</a>.`
+      const markdownLink = `[repo/blob/main/a.js#L7](${url}).`
+
+      paste(textarea, {'text/html': link, 'text/plain': `${url}.`})
+      assert.equal(textarea.value, markdownLink)
+    })
+
     it('links a url that ends in a bracket of its own', function () {
       const url = 'https://en.wikipedia.org/wiki/Ruby_(programming_language)'
       // eslint-disable-next-line github/unescaped-html-literal

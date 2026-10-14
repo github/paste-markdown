@@ -102,9 +102,10 @@ interface LinkSpan {
   length: number
 }
 
-// Whether text starts with a scheme. Deliberately laxer than paste-markdown-link.ts's `isURL`,
-// which requires the whole string to round-trip through `new URL()`: the question here is whether
-// splicing into this text would corrupt a URL, not whether it is a valid one.
+// Whether text starts with a scheme and `//`. Deliberately laxer than paste-markdown-link.ts's
+// `isURL`, which requires the whole string to round-trip through `new URL()`: the question here is
+// whether splicing into this text would corrupt a URL, not whether it is a valid one. The `//` is
+// what keeps prose like `TODO:foo` from reading as a URL, at the cost of `mailto:` and `urn:`.
 function looksLikeURL(text: string): boolean {
   return /^[a-z][a-z\d+.-]*:\/\//i.test(text)
 }
@@ -121,14 +122,21 @@ function tokenAt(markdown: string, index: number): LinkSpan {
 const OPENING_PUNCTUATION = '([{<"\''
 const CLOSING_PUNCTUATION = ')]}>"\'.,;:!?'
 
-// The same span without the punctuation prose wraps a URL in, so `(https://example.com/a)` and
-// `https://example.com/a.` are recognized as the URL they contain.
-function withoutWrappingPunctuation(markdown: string, span: LinkSpan): LinkSpan {
+// The spans the URL in this token could occupy once the punctuation prose wraps it in is off, so
+// `(https://example.com/a)` and `https://example.com/a.` are recognized as the URL they contain.
+// Opening punctuation all comes off, since a URL never starts with any. Closing punctuation comes
+// off one character at a time, longest span first, since a URL can end in a bracket of its own
+// that prose then closes over again: `(…/wiki/Ruby_(programming_language))`.
+function withoutWrappingPunctuation(markdown: string, span: LinkSpan): LinkSpan[] {
   let start = span.index
   let end = span.index + span.length
   while (start < end && OPENING_PUNCTUATION.includes(markdown[start])) start++
-  while (end > start && CLOSING_PUNCTUATION.includes(markdown[end - 1])) end--
-  return {index: start, length: end - start}
+  const spans = [{index: start, length: end - start}]
+  while (end > start && CLOSING_PUNCTUATION.includes(markdown[end - 1])) {
+    end--
+    spans.push({index: start, length: end - start})
+  }
+  return spans
 }
 
 // Which part of the plaintext this link replaces. Usually the label's own occurrence, but a label
@@ -142,16 +150,14 @@ function findLinkSpan(markdown: string, label: string, from: number, href: strin
 
   const token = tokenAt(markdown, index)
   if (token.length !== label.length) {
-    // The token as it stands first, since a URL can end in a bracket of its own
-    // (`…/wiki/Ruby_(programming_language)`), then the same token with wrapping punctuation off.
-    for (const span of [token, withoutWrappingPunctuation(markdown, token)]) {
-      const text = markdown.slice(span.index, span.index + span.length)
-      // The label describes this whole URL, so the link replaces the whole URL.
-      if (areEqualLinks(href, text)) return span
-      // Splicing inside a URL is never right, so a label inside one that is not this link's own
-      // href leaves the paste alone rather than corrupting it.
-      if (looksLikeURL(text)) return null
+    const spans = withoutWrappingPunctuation(markdown, token)
+    // The label describes this whole URL, so the link replaces the whole URL.
+    for (const span of spans) {
+      if (areEqualLinks(href, markdown.slice(span.index, span.index + span.length))) return span
     }
+    // Splicing inside a URL is never right, so a label inside one that is not this link's own
+    // href leaves the paste alone rather than corrupting it.
+    if (looksLikeURL(markdown.slice(spans[0].index, spans[0].index + spans[0].length))) return null
   }
 
   // The label is the whole token, or abuts other text as `<a href="…">foo</a>bar` does alongside
