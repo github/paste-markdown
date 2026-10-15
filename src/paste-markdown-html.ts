@@ -149,7 +149,9 @@ function findLinkSpan(markdown: string, label: string, from: number, href: strin
   if (index < 0) return null
 
   const token = tokenAt(markdown, index)
-  if (token.length !== label.length) {
+  // A label that runs past its token, as `https://example.com/ docs` does, isn't inside a URL.
+  const labelInsideToken = index + label.length <= token.index + token.length
+  if (token.length !== label.length && labelInsideToken) {
     const spans = withoutWrappingPunctuation(markdown, token)
     // The label describes this whole URL, so the link replaces the whole URL.
     for (const span of spans) {
@@ -160,8 +162,8 @@ function findLinkSpan(markdown: string, label: string, from: number, href: strin
     if (looksLikeURL(markdown.slice(spans[0].index, spans[0].index + spans[0].length))) return null
   }
 
-  // The label is the whole token, or abuts other text as `<a href="…">foo</a>bar` does alongside
-  // `foobar`. Its own occurrence is the right span.
+  // The label is the whole token, spans several, or abuts other text as `<a href="…">foo</a>bar`
+  // does alongside `foobar`. Its own occurrence is the right span.
   return {index, length: label.length}
 }
 

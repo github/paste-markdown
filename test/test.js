@@ -393,6 +393,24 @@ describe('paste-markdown', function () {
       assert.equal(textarea.value, markdownLink)
     })
 
+    it('links a label that starts with its url and goes on past it', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const link = `<meta charset='utf-8'><a href="https://example.com/">https://example.com/ docs</a>`
+      const markdownLink = `[https://example.com/ docs](https://example.com/)`
+
+      paste(textarea, {'text/html': link, 'text/plain': 'https://example.com/ docs'})
+      assert.equal(textarea.value, markdownLink)
+    })
+
+    it('links a label that starts with a url other than its href', function () {
+      // eslint-disable-next-line github/unescaped-html-literal
+      const link = `<meta charset='utf-8'><a href="https://example.com/docs">https://example.com/ docs</a>`
+      const markdownLink = `[https://example.com/ docs](https://example.com/docs)`
+
+      paste(textarea, {'text/html': link, 'text/plain': 'https://example.com/ docs'})
+      assert.equal(textarea.value, markdownLink)
+    })
+
     it('links a url the sentence ends right after', function () {
       const url = 'https://github.com/owner/repo/blob/main/a.js#L7'
       // eslint-disable-next-line github/unescaped-html-literal
