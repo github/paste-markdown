@@ -79,15 +79,15 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
       continue
     }
 
-    // Find the index where "text" is found in "markdown" _after_ "markdownIgnoreBeforeIndex"
-    const markdownFoundIndex = markdown.indexOf(text, markdownIgnoreBeforeIndex)
+    // Find the part of "markdown" this link replaces, at or after "markdownIgnoreBeforeIndex"
+    const span = findLinkSpan(markdown, text, markdownIgnoreBeforeIndex, currentNode.href)
 
-    if (markdownFoundIndex >= 0) {
+    if (span) {
       const markdownLink = linkify(currentNode, text)
       // Transform 'example link plus more text' into 'example [link](example link) plus more text'
       // Method: 'example [link](example link) plus more text' = 'example ' + '[link](example link)' + ' plus more text'
-      markdown = markdown.slice(0, markdownFoundIndex) + markdownLink + markdown.slice(markdownFoundIndex + text.length)
-      markdownIgnoreBeforeIndex = markdownFoundIndex + markdownLink.length
+      markdown = markdown.slice(0, span.index) + markdownLink + markdown.slice(span.index + span.length)
+      markdownIgnoreBeforeIndex = span.index + markdownLink.length
     }
 
     currentNode = walker.nextNode()
@@ -95,6 +95,76 @@ function convertToMarkdown(plaintext: string, walker: TreeWalker): string {
 
   // Unless we hit the node limit, we should have processed all nodes
   return index === NODE_LIMIT ? plaintext : markdown
+}
+
+interface LinkSpan {
+  index: number
+  length: number
+}
+
+// Whether text starts with a scheme and `//`. Deliberately laxer than paste-markdown-link.ts's
+// `isURL`, which requires the whole string to round-trip through `new URL()`: the question here is
+// whether splicing into this text would corrupt a URL, not whether it is a valid one. The `//` is
+// what keeps prose like `TODO:foo` from reading as a URL, at the cost of `mailto:` and `urn:`.
+function looksLikeURL(text: string): boolean {
+  return /^[a-z][a-z\d+.-]*:\/\//i.test(text)
+}
+
+// The whitespace-delimited token of "markdown" containing "index".
+function tokenAt(markdown: string, index: number): LinkSpan {
+  let start = index
+  let end = index
+  while (start > 0 && !/\s/.test(markdown[start - 1])) start--
+  while (end < markdown.length && !/\s/.test(markdown[end])) end++
+  return {index: start, length: end - start}
+}
+
+const OPENING_PUNCTUATION = '([{<"\''
+const CLOSING_PUNCTUATION = ')]}>"\'.,;:!?'
+
+// The spans the URL in this token could occupy once the punctuation prose wraps it in is off, so
+// `(https://example.com/a)` and `https://example.com/a.` are recognized as the URL they contain.
+// Opening punctuation all comes off, since a URL never starts with any. Closing punctuation comes
+// off one character at a time, longest span first, since a URL can end in a bracket of its own
+// that prose then closes over again: `(…/wiki/Ruby_(programming_language))`.
+function withoutWrappingPunctuation(markdown: string, span: LinkSpan): LinkSpan[] {
+  let start = span.index
+  let end = span.index + span.length
+  while (start < end && OPENING_PUNCTUATION.includes(markdown[start])) start++
+  const spans = [{index: start, length: end - start}]
+  while (end > start && CLOSING_PUNCTUATION.includes(markdown[end - 1])) {
+    end--
+    spans.push({index: start, length: end - start})
+  }
+  return spans
+}
+
+// Which part of the plaintext this link replaces. Usually the label's own occurrence, but a label
+// that is a shortened rendering of its own URL occurs only inside that URL, and splicing there
+// plants a `[` in the middle of it:
+//
+//   https://github.com/owner/[repo/blob/main/a.js](https://github.com/owner/repo/blob/main/a.js)
+function findLinkSpan(markdown: string, label: string, from: number, href: string): LinkSpan | null {
+  const index = markdown.indexOf(label, from)
+  if (index < 0) return null
+
+  const token = tokenAt(markdown, index)
+  // A label that runs past its token, as `https://example.com/ docs` does, isn't inside a URL.
+  const labelInsideToken = index + label.length <= token.index + token.length
+  if (token.length !== label.length && labelInsideToken) {
+    const spans = withoutWrappingPunctuation(markdown, token)
+    // The label describes this whole URL, so the link replaces the whole URL.
+    for (const span of spans) {
+      if (areEqualLinks(href, markdown.slice(span.index, span.index + span.length))) return span
+    }
+    // Splicing inside a URL is never right, so a label inside one that is not this link's own
+    // href leaves the paste alone rather than corrupting it.
+    if (looksLikeURL(markdown.slice(spans[0].index, spans[0].index + spans[0].length))) return null
+  }
+
+  // The label is the whole token, spans several, or abuts other text as `<a href="…">foo</a>bar`
+  // does alongside `foobar`. Its own occurrence is the right span.
+  return {index, length: label.length}
 }
 
 function isWithinUserMention(textarea: HTMLTextAreaElement): boolean {
