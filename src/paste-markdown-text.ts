@@ -10,6 +10,7 @@ export function uninstall(el: HTMLElement): void {
 }
 
 function onPaste(event: ClipboardEvent) {
+  if (event.defaultPrevented) return
   const {currentTarget: el} = event
   if (shouldSkipFormatting(el as HTMLElement)) return
 
