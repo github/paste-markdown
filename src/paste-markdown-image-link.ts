@@ -14,7 +14,6 @@ export function uninstall(el: HTMLElement): void {
 }
 
 function onDrop(event: DragEvent) {
-  if (event.defaultPrevented) return
   const transfer = event.dataTransfer
   if (!transfer) return
 
@@ -38,7 +37,6 @@ function onDragover(event: DragEvent) {
 }
 
 function onPaste(event: ClipboardEvent) {
-  if (event.defaultPrevented) return
   const {currentTarget: el} = event
   if (shouldSkipFormatting(el as HTMLElement)) return
 

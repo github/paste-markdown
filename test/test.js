@@ -175,381 +175,6 @@ describe('paste-markdown', function () {
       assert.include(textarea.value, tableMarkdown)
     })
 
-    it('preserves complete Markdown when pasting multiple tables', function () {
-      // eslint-disable-next-line github/unescaped-html-literal
-      const html = `<p>BEFORE_9F3A_KEEP</p>
-<table><tr><th>Key</th><th>Value</th></tr><tr><td>ALPHA_ROW</td><td>1</td></tr></table>
-<p>MIDDLE_9F3A_MUST_SURVIVE</p>
-<table><tr><th>Key</th><th>Value</th></tr><tr><td>BETA_ROW_MUST_SURVIVE</td><td>2</td></tr></table>
-<p>AFTER_9F3A_KEEP</p>`
-      const markdown = `BEFORE_9F3A_KEEP
-
-| Key | Value |
-| --- | --- |
-| ALPHA_ROW | 1 |
-
-MIDDLE_9F3A_MUST_SURVIVE
-
-| Key | Value |
-| --- | --- |
-| BETA_ROW_MUST_SURVIVE | 2 |
-
-AFTER_9F3A_KEEP`
-
-      const event = paste(textarea, {'text/html': html, 'text/plain': markdown})
-      assert.equal(textarea.value, markdown)
-      assert.isTrue(event.defaultPrevented)
-      for (const marker of [
-        'BEFORE_9F3A_KEEP',
-        'ALPHA_ROW',
-        'MIDDLE_9F3A_MUST_SURVIVE',
-        'BETA_ROW_MUST_SURVIVE',
-        'AFTER_9F3A_KEEP',
-      ]) {
-        assert.equal(textarea.value.split(marker).length - 1, 1)
-      }
-    })
-
-    it('keeps HTML when plain text omits content or a table', function () {
-      const html =
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<p>BEFORE</p><table><tr><th>FIRST</th></tr><tr><td>ONE</td></tr></table><p>MIDDLE</p><table><tr><th>SECOND</th></tr><tr><td>TWO</td></tr></table><p>AFTER</p>'
-      const complete = 'BEFORE\n\n| FIRST |\n| --- |\n| ONE |\n\nMIDDLE\n\n| SECOND |\n| --- |\n| TWO |\n\nAFTER'
-      paste(textarea, {'text/html': html, 'text/plain': complete})
-      assert.equal(textarea.value, complete)
-      for (const plain of [
-        'BEFORE\n\n| FIRST |\n| --- |\n| ONE |\n\n| SECOND |\n| --- |\n| TWO |\n\nAFTER',
-        'BEFORE\n\n| FIRST |\n| --- |\n| ONE |\n\nMIDDLE\n\nAFTER',
-      ]) {
-        textarea.value = ''
-        paste(textarea, {'text/html': html, 'text/plain': plain})
-        assert.equal(textarea.value, html)
-      }
-      textarea.value = ''
-      paste(textarea, {'text/html': html})
-      assert.equal(textarea.value, html)
-    })
-
-    it('does not insert twice when mixed clipboard formats include a link', function () {
-      const html =
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<p>BEFORE</p><table><tr><td>FIRST</td></tr></table><p><a href="https://example.com/">MIDDLE</a></p><table><tr><td>SECOND</td></tr></table>'
-      const original = document.execCommand
-      let insertCalls = 0
-      document.execCommand = function (command, ...args) {
-        if (command === 'insertText') insertCalls++
-        return original.call(this, command, ...args)
-      }
-      try {
-        paste(textarea, {
-          'text/html': html,
-          'text/plain': 'incomplete',
-          'text/x-gfm': 'incomplete',
-          'text/uri-list': 'https://example.com/pic.png',
-        })
-      } finally {
-        document.execCommand = original
-      }
-      assert.equal(textarea.value, html)
-      assert.equal(insertCalls, 1)
-    })
-
-    it('preserves nested and skipped table HTML', function () {
-      // eslint-disable-next-line github/unescaped-html-literal
-      const nested = '<table><tr><td>OUTER<table><tr><td>INNER</td></tr></table></td></tr></table>'
-      const skipped =
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<table data-paste-markdown-skip><tr><td>SKIP</td></tr></table><table><tr><td>KEEP</td></tr></table>'
-      paste(textarea, {'text/html': nested})
-      assert.equal(textarea.value, nested)
-      textarea.value = ''
-      paste(textarea, {'text/html': skipped})
-      assert.equal(textarea.value, skipped)
-    })
-
-    it('preserves comments, attributes and Markdown syntax when plaintext is ambiguous', function () {
-      /* eslint-disable github/unescaped-html-literal */
-      const examples = [
-        [
-          '<!-- IMPORTANT --><table><tr><th>A</th></tr><tr><td>1</td></tr></table><table><tr><th>B</th></tr><tr><td>2</td></tr></table>',
-          '| A |\n| --- |\n| 1 |\n\n| B |\n| --- |\n| 2 |',
-        ],
-        [
-          '<table title="IMPORTANT"><tr><th>A</th></tr><tr><td>1</td></tr></table><table><tr><th>B</th></tr><tr><td>2</td></tr></table>',
-          '| A |\n| --- |\n| 1 |\n\n| B |\n| --- |\n| 2 |',
-        ],
-        [
-          '<table><tr><th>*A*</th></tr><tr><td>1</td></tr></table><table><tr><th>B</th></tr><tr><td>2</td></tr></table>',
-          '| *A* |\n| --- |\n| 1 |\n\n| B |\n| --- |\n| 2 |',
-        ],
-      ]
-      /* eslint-enable github/unescaped-html-literal */
-      for (const [html, plain] of examples) {
-        textarea.value = ''
-        paste(textarea, {'text/html': html, 'text/plain': plain})
-        assert.equal(textarea.value, html)
-      }
-    })
-
-    it('does not trust plain text that turns a literal paragraph into Markdown syntax', function () {
-      const unsafe = ['# LITERAL_TEXT', '- item', '+ item', '1. item', '> quote', '---', '___', '~~strike~~']
-      for (const paragraph of unsafe) {
-        // eslint-disable-next-line github/unescaped-html-literal
-        const html = `<p>BEFORE</p><table><tr><th>A</th></tr><tr><td>1</td></tr></table><p>${paragraph}</p><table><tr><th>B</th></tr><tr><td>2</td></tr></table><p>AFTER</p>`
-        const plain = `BEFORE\n\n| A |\n| --- |\n| 1 |\n\n${paragraph}\n\n| B |\n| --- |\n| 2 |\n\nAFTER`
-        textarea.value = ''
-        paste(textarea, {'text/html': html, 'text/plain': plain})
-        assert.equal(textarea.value, html)
-      }
-    })
-
-    it('accepts ordinary prose containing hyphens, periods, numbers and an internal hash', function () {
-      for (const paragraph of ['A-B has 2 items.', 'Version 1.2 is ready', 'A literal # inside prose']) {
-        // eslint-disable-next-line github/unescaped-html-literal
-        const html = `<p>BEFORE</p><table><tr><th>A</th></tr><tr><td>1</td></tr></table><p>${paragraph}</p><table><tr><th>B</th></tr><tr><td>2</td></tr></table><p>AFTER</p>`
-        const plain = `BEFORE\n\n| A |\n| --- |\n| 1 |\n\n${paragraph}\n\n| B |\n| --- |\n| 2 |\n\nAFTER`
-        textarea.value = ''
-        paste(textarea, {'text/html': html, 'text/plain': plain})
-        assert.equal(textarea.value, plain)
-      }
-    })
-
-    it('requires header cells only in the first row and data cells afterward', function () {
-      const cases = [
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<table><tr><td>A</td></tr><tr><td>1</td></tr></table>',
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<table><tr><th>A</th></tr><tr><th>1</th></tr></table>',
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<table><tr><th></th></tr><tr><td>1</td></tr></table>',
-      ]
-      const plains = ['| A |\n| --- |\n| 1 |', '| A |\n| --- |\n| 1 |', '|  |\n| --- |\n| 1 |']
-      // eslint-disable-next-line github/unescaped-html-literal
-      const second = '<table><tr><th>B</th></tr><tr><td>2</td></tr></table>'
-      for (let index = 0; index < cases.length; index++) {
-        textarea.value = ''
-        const html = cases[index] + second
-        const plain = [plains[index], '| B |\n| --- |\n| 2 |'].join('\n\n')
-        paste(textarea, {'text/html': html, 'text/plain': plain})
-        assert.equal(textarea.value, html)
-      }
-      textarea.value = ''
-      const validHtml = [
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<table><tr><th>A</th></tr><tr><td>1</td></tr></table>',
-        second,
-      ].join('')
-      const validPlain = '| A |\n| --- |\n| 1 |\n\n| B |\n| --- |\n| 2 |'
-      paste(textarea, {'text/html': validHtml, 'text/plain': validPlain})
-      assert.equal(textarea.value, validPlain)
-    })
-
-    it('does not trust dotted text that GFM can turn into an autolink', function () {
-      const cases = [
-        [
-          // eslint-disable-next-line github/unescaped-html-literal
-          '<p>www.example.com</p><table><tr><th>A</th></tr><tr><td>1</td></tr></table><table><tr><th>B</th></tr><tr><td>2</td></tr></table>',
-          'www.example.com\n\n| A |\n| --- |\n| 1 |\n\n| B |\n| --- |\n| 2 |',
-        ],
-        [
-          // eslint-disable-next-line github/unescaped-html-literal
-          '<table><tr><th>www.example.com</th></tr><tr><td>1</td></tr></table><table><tr><th>B</th></tr><tr><td>2</td></tr></table>',
-          '| www.example.com |\n| --- |\n| 1 |\n\n| B |\n| --- |\n| 2 |',
-        ],
-      ]
-      for (const [html, plain] of cases) {
-        textarea.value = ''
-        paste(textarea, {'text/html': html, 'text/plain': plain})
-        assert.equal(textarea.value, html)
-      }
-    })
-
-    it('does not trust a Markdown row whose extra cell GFM would discard', function () {
-      const html =
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<table><tr><th>A</th></tr><tr><td>1</td><td>EXTRA</td></tr></table><table><tr><th>B</th></tr><tr><td>2</td></tr></table>'
-      const plain = '| A |\n| --- |\n| 1 | EXTRA |\n\n| B |\n| --- |\n| 2 |'
-      paste(textarea, {'text/html': html, 'text/plain': plain})
-      assert.equal(textarea.value, html)
-    })
-
-    it('does not trust Markdown alignment or a footer section absent from its structure', function () {
-      const cases = [
-        [
-          // eslint-disable-next-line github/unescaped-html-literal
-          '<table><tr><th>A</th></tr><tr><td>1</td></tr></table>',
-          '| A |\n| :--- |\n| 1 |',
-        ],
-        [
-          // eslint-disable-next-line github/unescaped-html-literal
-          '<table><tr><th>A</th></tr><tfoot><tr><td>1</td></tr></tfoot></table>',
-          '| A |\n| --- |\n| 1 |',
-        ],
-      ]
-      // eslint-disable-next-line github/unescaped-html-literal
-      const second = '<table><tr><th>B</th></tr><tr><td>2</td></tr></table>'
-      for (const [first, firstPlain] of cases) {
-        textarea.value = ''
-        const html = [first, second].join('')
-        const plain = [firstPlain, '| B |\n| --- |\n| 2 |'].join('\n\n')
-        paste(textarea, {'text/html': html, 'text/plain': plain})
-        assert.equal(textarea.value, html)
-      }
-    })
-
-    it('keeps HTML on drop when an intermediate paragraph has Markdown syntax', function () {
-      const html =
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<table><tr><th>A</th></tr><tr><td>1</td></tr></table><p># LITERAL_TEXT</p><table><tr><th>B</th></tr><tr><td>2</td></tr></table>'
-      const plain = '| A |\n| --- |\n| 1 |\n\n# LITERAL_TEXT\n\n| B |\n| --- |\n| 2 |'
-      const transfer = new DataTransfer()
-      transfer.setData('text/html', html)
-      transfer.setData('text/plain', plain)
-      const event = new DragEvent('drop', {dataTransfer: transfer, cancelable: true})
-      textarea.dispatchEvent(event)
-      assert.isTrue(event.defaultPrevented)
-      assert.equal(textarea.value, html)
-    })
-
-    it('does not intercept table-like text without a table element', function () {
-      const transfer = new DataTransfer()
-
-      transfer.setData('text/html', '<!-- <table text -->')
-      const event = new ClipboardEvent('paste', {clipboardData: transfer, cancelable: true})
-      textarea.dispatchEvent(event)
-      assert.isFalse(event.defaultPrevented)
-      assert.equal(textarea.value, '')
-    })
-
-    it('keeps complex table markup when plain text cannot be verified', function () {
-      const examples = [
-        [
-          // eslint-disable-next-line github/unescaped-html-literal
-          '<p>BEFORE</p><table><tr><th>A</th></tr><tr><td colspan="2">MERGED</td></tr></table><table><tr><th>SECOND</th></tr><tr><td>2</td></tr></table>',
-          'BEFORE\n\n| A |\n| --- |\n| MERGED |\n\n| SECOND |\n| --- |\n| 2 |',
-        ],
-        [
-          // eslint-disable-next-line github/unescaped-html-literal
-          '<p>BEFORE</p><table><tr><th>A</th></tr><tr><td><strong>RICH</strong></td></tr></table><table><tr><th>SECOND</th></tr><tr><td>2</td></tr></table>',
-          'BEFORE\n\n| A |\n| --- |\n| RICH |\n\n| SECOND |\n| --- |\n| 2 |',
-        ],
-      ]
-      for (const [html, plain] of examples) {
-        textarea.value = ''
-        paste(textarea, {'text/html': html, 'text/plain': plain})
-        assert.equal(textarea.value, html)
-      }
-    })
-
-    it('preserves single tables with mixed-case tag boundaries', function () {
-      const tables = [
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<TABLE><TR><TD>ONE</TD></TR></TABLE>',
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<Table><tr><td>ONE</td></tr></TABLE>',
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<table><tr><td>ONE</td></tr></Table>',
-      ]
-      for (const table of tables) {
-        textarea.value = ''
-        // eslint-disable-next-line github/unescaped-html-literal
-        const html = `<p>BEFORE</p>${table}<p>AFTER</p>`
-        paste(textarea, {'text/html': html})
-        assert.equal(textarea.value, html)
-      }
-    })
-
-    it('preserves HTML when table boundaries are damaged', function () {
-      const html =
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<p>BEFORE</p><table><tr><td>ONE</td></tr></table><p>MIDDLE</p><TABLE><tr><td>TWO</td></tr><p>AFTER</p>'
-      paste(textarea, {'text/html': html, 'text/plain': 'ONE'})
-      assert.equal(textarea.value, html)
-    })
-
-    it('handles a large multi-table fragment within the test timeout', function () {
-      // eslint-disable-next-line github/unescaped-html-literal
-      const html = '<table><tr><td>ROW</td></tr></table>'.repeat(1000)
-      paste(textarea, {'text/html': html})
-      assert.equal(textarea.value, html)
-    })
-
-    it('clears skip-formatting after a handled paste', function () {
-      // eslint-disable-next-line github/unescaped-html-literal
-      const html = '<table><tr><td>ONE</td></tr></table><table><tr><td>TWO</td></tr></table>'
-      dispatchSkipFormattingKeyEvent(textarea)
-      paste(textarea, {'text/html': html})
-      assert.equal(textarea.value, '')
-      paste(textarea, {'text/html': html})
-      assert.equal(textarea.value, html)
-    })
-
-    it('does not cancel table paste or drop on unsupported elements', function () {
-      const div = document.createElement('div')
-      installTable(div)
-      // eslint-disable-next-line github/unescaped-html-literal
-      const html = '<table><tr><td>ONE</td></tr></table><table><tr><td>TWO</td></tr></table>'
-      const transfer = new DataTransfer()
-      transfer.setData('text/html', html)
-      const pasteEvent = new ClipboardEvent('paste', {clipboardData: transfer, cancelable: true})
-      const dropEvent = new DragEvent('drop', {dataTransfer: transfer, cancelable: true})
-      div.dispatchEvent(pasteEvent)
-      div.dispatchEvent(dropEvent)
-      uninstallTable(div)
-      assert.isFalse(pasteEvent.defaultPrevented)
-      assert.isFalse(dropEvent.defaultPrevented)
-    })
-
-    it('does not handle a previously canceled event', function () {
-      // eslint-disable-next-line github/unescaped-html-literal
-      const html = '<table><tr><td>ONE</td></tr></table><table><tr><td>TWO</td></tr></table>'
-      const transfer = new DataTransfer()
-      transfer.setData('text/html', html)
-      const event = new ClipboardEvent('paste', {clipboardData: transfer, cancelable: true})
-      event.preventDefault()
-      textarea.dispatchEvent(event)
-      assert.equal(textarea.value, '')
-
-      const drop = new DragEvent('drop', {dataTransfer: transfer, cancelable: true})
-      drop.preventDefault()
-      textarea.dispatchEvent(drop)
-      assert.equal(textarea.value, '')
-    })
-
-    it('handles text drops and leaves file drops alone', function () {
-      // eslint-disable-next-line github/unescaped-html-literal
-      const html = '<table><tr><td>ONE</td></tr></table><p>MIDDLE</p><table><tr><td>TWO</td></tr></table>'
-      const transfer = new DataTransfer()
-      transfer.setData('text/html', html)
-      const drop = new DragEvent('drop', {dataTransfer: transfer, cancelable: true})
-      textarea.dispatchEvent(drop)
-      assert.isTrue(drop.defaultPrevented)
-      assert.equal(textarea.value, html)
-
-      textarea.value = ''
-      const files = new DataTransfer()
-      files.items.add(new File(['content'], 'example.txt'))
-      files.setData('text/html', html)
-      const fileDrop = new DragEvent('drop', {dataTransfer: files, cancelable: true})
-      textarea.dispatchEvent(fileDrop)
-      assert.isFalse(fileDrop.defaultPrevented)
-      assert.equal(textarea.value, '')
-    })
-
-    it('uses verified Markdown for a text drop', function () {
-      const html =
-        // eslint-disable-next-line github/unescaped-html-literal
-        '<p>BEFORE</p><table><tr><th>ONE</th></tr><tr><td>A</td></tr></table><p>MIDDLE</p><table><tr><th>TWO</th></tr><tr><td>B</td></tr></table>'
-      const markdown = 'BEFORE\n\n| ONE |\n| --- |\n| A |\n\nMIDDLE\n\n| TWO |\n| --- |\n| B |'
-      const transfer = new DataTransfer()
-      transfer.setData('text/html', html)
-      transfer.setData('text/plain', markdown)
-      const drop = new DragEvent('drop', {dataTransfer: transfer, cancelable: true})
-      textarea.dispatchEvent(drop)
-      assert.isTrue(drop.defaultPrevented)
-      assert.equal(textarea.value, markdown)
-    })
-
     it("doesn't execute JavaScript", async function () {
       let alertCalled = false
       window.secretFunction = function () {
@@ -601,7 +226,7 @@ AFTER_9F3A_KEEP`
       assertUnformattedPaste(textarea)
     })
 
-    it('preserves malformed table HTML without truncating it', function () {
+    it('rejects malformed tables', function () {
       // eslint-disable-next-line github/unescaped-html-literal, prefer-template
       const html = '<table'.repeat(999) + '<div><table></div>'
       const data = {
@@ -609,7 +234,9 @@ AFTER_9F3A_KEEP`
       }
       paste(textarea, data)
 
-      assert.equal(textarea.value, html)
+      // Synthetic paste events don't manipulate the DOM. A empty textarea
+      // means that the event handler didn't fire and normal paste happened.
+      assertUnformattedPaste(textarea)
     })
 
     it('accepts x-gfm', function () {
@@ -858,6 +485,112 @@ bar bar foo`
   })
 })
 
+/* eslint-disable github/unescaped-html-literal, i18n-text/no-en */
+describe('multiple tables', function () {
+  let field
+  const first = '<table><thead><tr><th>A</th></tr></thead><tbody><tr><td>One</td></tr></tbody></table>'
+  const second = '<table><thead><tr><th>B</th></tr></thead><tbody><tr><td>Two</td></tr></tbody></table>'
+  const html = `<p>Before</p>${first}<p>Between</p>${second}<p>After</p>`
+  const plain = 'Before\n\n| A |\n| --- |\n| One |\n\nBetween\n\n| B |\n| --- |\n| Two |\n\nAfter'
+
+  beforeEach(function () {
+    field = document.createElement('textarea')
+    document.body.append(field)
+    field.focus()
+    installTable(field)
+  })
+  afterEach(function () {
+    uninstallTable(field)
+    field.remove()
+  })
+
+  function send(markup, text, type = 'paste') {
+    const transfer = new DataTransfer()
+    transfer.setData('text/html', markup)
+    transfer.setData('text/plain', text)
+    const event =
+      type === 'paste'
+        ? new ClipboardEvent('paste', {clipboardData: transfer, bubbles: true, cancelable: true})
+        : new DragEvent('drop', {dataTransfer: transfer, bubbles: true, cancelable: true})
+    field.dispatchEvent(event)
+    return event
+  }
+
+  it('retains complex tables and intervening content with HTML fallback', function () {
+    const complex = `<p>Before</p><table><tr><th colspan="2">Header</th></tr><tr><td rowspan="2"><strong>Bold</strong></td><td><a href="https://example.com">Link</a></td></tr></table><p>Between</p>${
+      second
+    }<p>After</p>`
+    for (const type of ['paste', 'drop']) {
+      field.value = ''
+      const event = send(complex, 'Before Header Bold Link Between B Two After', type)
+      assert.isTrue(event.defaultPrevented)
+      assert.equal(field.value, complex)
+      assert.include(field.value, '<p>Between</p>')
+      assert.include(field.value, second)
+    }
+  })
+
+  it('accepts complete ordered Markdown without changing CRLF', function () {
+    const crlf = plain.replace(/\n/g, '\r\n')
+    const original = document.execCommand
+    let inserted
+    document.execCommand = function (command, ...args) {
+      if (command === 'insertText') inserted = args[1]
+      return original.call(this, command, ...args)
+    }
+    try {
+      send(html, crlf)
+      assert.equal(inserted, crlf)
+      assert.equal(field.value, plain)
+    } finally {
+      document.execCommand = original
+    }
+  })
+
+  it('falls back for incomplete, reordered and indented Markdown', function () {
+    for (const text of [
+      plain.replace('| Two |', ''),
+      plain.replace('| One |', '| Two |').replace('| Two |\n\nAfter', '| One |\n\nAfter'),
+      plain.replace('| B |', '    | B |'),
+      plain.replace('| B |', '\t| B |'),
+    ]) {
+      field.value = ''
+      send(html, text)
+      assert.equal(field.value, html)
+    }
+  })
+
+  it('separates tables when inserting inside existing text', function () {
+    field.value = 'prefixsuffix'
+    field.setSelectionRange(6, 6)
+    send(html, plain)
+    assert.equal(field.value, `prefix\n\n${plain}\n\nsuffix`)
+  })
+
+  it('does not accept ordered-list markers as literal paragraphs', function () {
+    for (const marker of ['1.', '2024.']) {
+      field.value = ''
+      const markup = `<p>${marker}</p>${first}${second}`
+      send(markup, `${marker}\n\n| A |\n| --- |\n| One |\n\n| B |\n| --- |\n| Two |`)
+      assert.equal(field.value, markup)
+    }
+  })
+
+  it('leaves skipped tables to native insertion for paste and drop', function () {
+    const skipped = first.replace('<table>', '<table data-paste-markdown-skip>')
+    for (const markup of [skipped, first + skipped]) {
+      for (const type of ['paste', 'drop']) {
+        field.value = ''
+        const event = send(markup, 'native text', type)
+        assert.isFalse(event.defaultPrevented)
+        assert.equal(field.value, '')
+      }
+    }
+  })
+})
+
+/* eslint-enable github/unescaped-html-literal, i18n-text/no-en */
+
 /**
  * Note: It's possible to construct and dispatch a synthetic paste event,
  * but this will not affect the document's contents in tests to assert it.
@@ -893,10 +626,8 @@ function paste(textarea, data) {
   }
   const event = new ClipboardEvent('paste', {
     clipboardData: dataTransfer,
-    cancelable: true,
   })
   textarea.dispatchEvent(event)
-  return event
 }
 
 function wait(ms) {

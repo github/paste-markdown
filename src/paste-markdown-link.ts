@@ -14,7 +14,6 @@ export function uninstall(el: HTMLElement): void {
 }
 
 function onPaste(event: ClipboardEvent) {
-  if (event.defaultPrevented) return
   const {currentTarget: el} = event
   const element = el as HTMLElement
   const shouldPasteAsPlainText = pasteLinkAsPlainTextOverSelectedTextMap.get(element) ?? false
