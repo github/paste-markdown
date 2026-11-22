@@ -1,4 +1,4 @@
-import {subscribe} from '../src/index.ts'
+import {subscribe, installTable, uninstallTable} from '../src/index.ts'
 import {assert} from '@open-wc/testing'
 
 const tableHtml = `
@@ -484,6 +484,112 @@ bar bar foo`
     })
   })
 })
+
+/* eslint-disable github/unescaped-html-literal, i18n-text/no-en */
+describe('multiple tables', function () {
+  let field
+  const first = '<table><thead><tr><th>A</th></tr></thead><tbody><tr><td>One</td></tr></tbody></table>'
+  const second = '<table><thead><tr><th>B</th></tr></thead><tbody><tr><td>Two</td></tr></tbody></table>'
+  const html = `<p>Before</p>${first}<p>Between</p>${second}<p>After</p>`
+  const plain = 'Before\n\n| A |\n| --- |\n| One |\n\nBetween\n\n| B |\n| --- |\n| Two |\n\nAfter'
+
+  beforeEach(function () {
+    field = document.createElement('textarea')
+    document.body.append(field)
+    field.focus()
+    installTable(field)
+  })
+  afterEach(function () {
+    uninstallTable(field)
+    field.remove()
+  })
+
+  function send(markup, text, type = 'paste') {
+    const transfer = new DataTransfer()
+    transfer.setData('text/html', markup)
+    transfer.setData('text/plain', text)
+    const event =
+      type === 'paste'
+        ? new ClipboardEvent('paste', {clipboardData: transfer, bubbles: true, cancelable: true})
+        : new DragEvent('drop', {dataTransfer: transfer, bubbles: true, cancelable: true})
+    field.dispatchEvent(event)
+    return event
+  }
+
+  it('retains complex tables and intervening content with HTML fallback', function () {
+    const complex = `<p>Before</p><table><tr><th colspan="2">Header</th></tr><tr><td rowspan="2"><strong>Bold</strong></td><td><a href="https://example.com">Link</a></td></tr></table><p>Between</p>${
+      second
+    }<p>After</p>`
+    for (const type of ['paste', 'drop']) {
+      field.value = ''
+      const event = send(complex, 'Before Header Bold Link Between B Two After', type)
+      assert.isTrue(event.defaultPrevented)
+      assert.equal(field.value, complex)
+      assert.include(field.value, '<p>Between</p>')
+      assert.include(field.value, second)
+    }
+  })
+
+  it('accepts complete ordered Markdown without changing CRLF', function () {
+    const crlf = plain.replace(/\n/g, '\r\n')
+    const original = document.execCommand
+    let inserted
+    document.execCommand = function (command, ...args) {
+      if (command === 'insertText') inserted = args[1]
+      return original.call(this, command, ...args)
+    }
+    try {
+      send(html, crlf)
+      assert.equal(inserted, crlf)
+      assert.equal(field.value, plain)
+    } finally {
+      document.execCommand = original
+    }
+  })
+
+  it('falls back for incomplete, reordered and indented Markdown', function () {
+    for (const text of [
+      plain.replace('| Two |', ''),
+      plain.replace('| One |', '| Two |').replace('| Two |\n\nAfter', '| One |\n\nAfter'),
+      plain.replace('| B |', '    | B |'),
+      plain.replace('| B |', '\t| B |'),
+    ]) {
+      field.value = ''
+      send(html, text)
+      assert.equal(field.value, html)
+    }
+  })
+
+  it('separates tables when inserting inside existing text', function () {
+    field.value = 'prefixsuffix'
+    field.setSelectionRange(6, 6)
+    send(html, plain)
+    assert.equal(field.value, `prefix\n\n${plain}\n\nsuffix`)
+  })
+
+  it('does not accept ordered-list markers as literal paragraphs', function () {
+    for (const marker of ['1.', '2024.']) {
+      field.value = ''
+      const markup = `<p>${marker}</p>${first}${second}`
+      send(markup, `${marker}\n\n| A |\n| --- |\n| One |\n\n| B |\n| --- |\n| Two |`)
+      assert.equal(field.value, markup)
+    }
+  })
+
+  it('leaves skipped tables to native insertion for paste and drop', function () {
+    const skipped = first.replace('<table>', '<table data-paste-markdown-skip>')
+    for (const markup of [skipped, first + skipped]) {
+      for (const type of ['paste', 'drop']) {
+        field.value = ''
+        const event = send(markup, 'native text', type)
+        assert.isFalse(event.defaultPrevented)
+        assert.equal(field.value, '')
+      }
+    }
+  })
+})
+
+/* eslint-enable github/unescaped-html-literal, i18n-text/no-en */
 
 /**
  * Note: It's possible to construct and dispatch a synthetic paste event,
